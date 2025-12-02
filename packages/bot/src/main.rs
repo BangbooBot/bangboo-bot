@@ -10,8 +10,6 @@ mod tools;
 use crate::functions::configure_malloc;
 
 use crate::discord::*;
-use crate::functions::*;
-use std::str::FromStr;
 use twilight_model::gateway::Intents;
 
 #[tokio::main]
@@ -19,12 +17,7 @@ async fn main() {
     #[cfg(target_env = "gnu")]
     configure_malloc();
 
-    let intents = Intents::GUILD_MEMBERS
-        | Intents::GUILDS
-        | Intents::DIRECT_MESSAGES
-        | Intents::MESSAGE_CONTENT
-        | Intents::GUILD_MEMBERS
-        | Intents::GUILD_MODERATION;
+    let intents = Intents::all();
 
     let mut app = App::bootstrap(intents).await;
     app.run().await;

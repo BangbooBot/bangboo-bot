@@ -20,7 +20,7 @@ impl EventHandler for Ready {
             _ => return Ok(()),
         };
 
-        success(&format!("● {} online ✓", ready.user.name.underline()).bright_green());
+        log(&format!("{} {} {}", "●".bright_green(), ready.user.name.underline().bright_green(), "online ✓".bright_green()));
 
         let app_id = ready.application.id;
         let commands = HANDLERS
@@ -39,16 +39,20 @@ impl EventHandler for Ready {
             Ok(_) => {
                 success(
                     &format!(
-                        "└ {} command(s) successfully registered globally!",
-                        commands.len()
+                        "{} {} {}",
+                        "└".bright_green(),
+                        commands.len(),
+                        "command(s) successfully registered globally!".bright_green()
                     )
                     .bright_green(),
                 );
                 for command in commands {
-                    success(
+                    log(
                         &format!(
-                            "{{/}} Slash command > {} ✓",
-                            command.name.as_str().bright_blue()
+                            "{} > {} {}",
+                            "{/} Slash command".bright_green(),
+                            command.name.as_str().underline().bright_blue(),
+                            "✓".bright_green()
                         )
                         .bright_green(),
                     );
@@ -66,17 +70,17 @@ impl EventHandler for Ready {
 
         for handler in HANDLERS.message_component_handlers.iter() {
             let id = handler.0.as_str();
-            log(&format!("{} {}", "▸".bright_green(), id.bright_green()));
+            log(&format!("{} > {} {}", "▸ message component".bright_green(), id.underline().bright_blue(), "✓".bright_green()));
         }
 
         for handler in HANDLERS.modal_handlers.iter() {
             let id = handler.0.as_str();
-            log(&format!("{} {}", "▸".bright_green(), id.bright_green()));
+            log(&format!("{} > {} {}", "▸ modal".bright_green(), id.underline().bright_blue(), "✓".bright_green()));
         }
 
         for handler in HANDLERS.event_handlers.iter() {
             if let Some(event_name) = handler.0.name() {
-                log(&format!("{} {}", "☉".bright_yellow(), event_name.bright_yellow()));
+                log(&format!("{} > {}", "☉ event".bright_yellow(), event_name.underline().bright_yellow()));
             }
         }
 

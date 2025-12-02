@@ -51,7 +51,7 @@ impl EventHandler for MemberAdded {
         let user = &member_add.user;
 
         global_message(
-            ctx.http,
+            &ctx,
             &system_channel_id,
             EventType::MemberAdd,
             Some(&member_add.member),

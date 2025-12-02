@@ -2,10 +2,8 @@ use crate::constants::*;
 use crate::discord::Context;
 use crate::functions::*;
 use skia_safe::{EncodedImageFormat, ISize, Point};
-use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 use twilight_gateway::EventType;
-use twilight_http::Client;
 use twilight_model::guild::Member;
 use twilight_model::http::attachment::Attachment;
 use twilight_model::id::marker::ChannelMarker;
@@ -15,7 +13,7 @@ use twilight_util::builder::embed::{EmbedAuthorBuilder, EmbedBuilder, ImageSourc
 use twilight_util::snowflake::Snowflake;
 
 pub async fn global_message(
-    http: Arc<Client>,
+    ctx: &Context,
     channel_id: &Id<ChannelMarker>,
     event: EventType,
     member: Option<&Member>,
@@ -147,7 +145,8 @@ pub async fn global_message(
     }
     let attachment = Attachment::from_bytes("Card.png".to_string(), data, 0);
 
-    let res = http
+    let res = ctx
+        .http
         .create_message(channel_id.clone())
         .attachments(&[attachment])
         .content(&utc)

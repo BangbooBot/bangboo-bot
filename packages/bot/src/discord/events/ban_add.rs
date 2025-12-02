@@ -50,7 +50,7 @@ impl EventHandler for BanAdd {
 
         let user = &ban_add.user;
 
-        global_message(ctx.http, &system_channel_id, EventType::BanAdd, None, user).await;
+        global_message(&ctx, &system_channel_id, EventType::BanAdd, None, user).await;
 
         Ok(())
     }

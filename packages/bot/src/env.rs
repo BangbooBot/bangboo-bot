@@ -1,4 +1,5 @@
 use crate::functions::*;
+use colored::Colorize;
 use dotenvy::dotenv;
 use once_cell::sync::Lazy;
 use serde::Deserialize;
@@ -35,6 +36,8 @@ pub static ENV: Lazy<EnvSchema> = Lazy::new(|| {
             panic!();
         }
     };
+
+    log(&format!("{} {}", "☰ Environment variables".bright_purple(), "loaded ✓".bright_green()));
 
     env
 });

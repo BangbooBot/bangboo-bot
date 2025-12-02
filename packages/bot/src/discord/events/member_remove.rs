@@ -64,7 +64,7 @@ impl EventHandler for MemberRemove {
         let user = &member_remove.user;
 
         global_message(
-            ctx.http,
+            &ctx,
             &system_channel_id,
             EventType::MemberRemove,
             None,

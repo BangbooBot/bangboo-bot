@@ -6,7 +6,6 @@ use crate::functions::{
 };
 use async_trait::async_trait;
 use std::error::Error;
-use std::hash::Hash;
 use twilight_http::request::AuditLogReason;
 use twilight_model::application::interaction::modal::ModalInteractionComponent;
 use twilight_model::channel::message::MessageFlags;
