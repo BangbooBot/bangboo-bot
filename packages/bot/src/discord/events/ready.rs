@@ -37,11 +37,11 @@ impl EventHandler for Ready {
 
         match res {
             Ok(_) => {
-                success(
+                log(
                     &format!(
                         "{} {} {}",
                         "└".bright_green(),
-                        commands.len(),
+                        commands.len().to_string().bright_green(),
                         "command(s) successfully registered globally!".bright_green()
                     )
                     .bright_green(),
