@@ -1,7 +1,9 @@
 use crate::constants::*;
 use crate::discord::Context;
 use crate::functions::*;
+use chrono::Utc;
 use skia_safe::{EncodedImageFormat, ISize, Point};
+use twilight_model::util::Timestamp;
 use std::time::{SystemTime, UNIX_EPOCH};
 use twilight_gateway::EventType;
 use twilight_model::guild::Member;
@@ -138,10 +140,23 @@ pub async fn global_message(
     let mut utc = String::new();
     if event == EventType::MemberAdd {
         let joined_at = match member.unwrap().joined_at {
-            Some(timestamp) => timestamp.as_micros() / 1000,
+            Some(timestamp) => timestamp.as_secs(),
             None => 0,
         };
         utc.push_str(&format!("<t:{}:F>", joined_at));
+    } else {
+        let timeout_until = Utc::now();
+        match Timestamp::from_micros(timeout_until.timestamp_micros()) {
+            Ok(time) => {
+                utc = format!("<t:{}:F>", time.as_secs());
+            },
+            Err(err) => {
+                error(&format!(
+                    "Error trying to parse DataTime to Timestamp\n└ {:?}",
+                    err
+                ));
+            }
+        };
     }
     let attachment = Attachment::from_bytes("Card.png".to_string(), data, 0);
 
