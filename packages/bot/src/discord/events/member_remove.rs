@@ -25,18 +25,13 @@ impl EventHandler for MemberRemove {
 
         let guild_id = &member_remove.guild_id;
 
-        match ctx
+        if ctx
             .http
             .ban(guild_id.clone(), member_remove.user.id.clone())
-            .await?
-            .model()
-            .await
-        {
-            Ok(_) => {
+            .await.is_ok() {
                 return Ok(());
-            }
-            Err(_) => {}
         }
+            
 
         let mut system_channel_id = None;
 
