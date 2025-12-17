@@ -37,7 +37,7 @@ pub static ENV: Lazy<EnvSchema> = Lazy::new(|| {
         }
     };
 
-    log(&format!("{} {}", "☰ Environment variables".bright_purple(), "loaded ✓".bright_green()));
+    log(&format!("{} {}", "☰ Environment variables".bright_purple(), "loaded ✓".bright_purple()));
 
     env
 });
