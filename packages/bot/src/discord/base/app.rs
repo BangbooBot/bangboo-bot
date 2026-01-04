@@ -88,18 +88,16 @@ impl App {
         };
 
         while let Some(item) = shard.next_event(EventTypeFlags::all()).await {
-                let Ok(event) = item else {
-                    error(&format!("Error receiving event\n└ {:?}", item.unwrap_err()));
+            let Ok(event) = item else {
+                error(&format!("Error receiving event\n└ {:?}", item.unwrap_err()));
+                continue;
+            };
+            
+            // Update the cache with the event.
+            ctx.cache.update(&event);
 
-                    continue;
-                };
-                
-
-                // Update the cache with the event.
-                ctx.cache.update(&event);
-
-                tokio::spawn(App::handle_event(ctx.clone(), event));
-            }
+            tokio::spawn(App::handle_event(ctx.clone(), event));
+        }
     }
 
     async fn handle_event(ctx: Context, event: Event) {

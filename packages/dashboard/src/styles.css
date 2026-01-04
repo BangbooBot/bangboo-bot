@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: Anton;
   src: url("./assets/fonts/Anton-Regular.ttf");
@@ -10,7 +12,7 @@
 }
 
 body {
-  @apply m-0 bg-neutral-900;
+  @apply m-0 bg-zinc-900 text-white;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
@@ -25,4 +27,12 @@ code {
 
 @theme {
   --font-anton: "Anton", sans-serif;
+
+  --breakpoint-mobs: 320px;
+  --breakpoint-mobm: 375px;
+  --breakpoint-mobl: 425px;
+  --breakpoint-tb: 768px;
+  --breakpoint-lt: 1024px;
+  --breakpoint-ll: 1440px;
+
 }

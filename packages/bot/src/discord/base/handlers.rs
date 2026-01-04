@@ -23,7 +23,6 @@ pub static HANDLERS: Lazy<Handler> = Lazy::new(|| {
     //let mut commands = Vec::new();
     let mut slash_command_handlers = HashMap::new();
     for slash_command in slash_commands {
-        let cmd = slash_command.command();
         let name = slash_command.command().name.clone();
         //commands.push(cmd);
         slash_command_handlers.insert(name, slash_command);

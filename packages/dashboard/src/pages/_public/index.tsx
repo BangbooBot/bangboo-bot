@@ -1,6 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
-import logo from '@/logo.svg'
 import Card from '@/components/RiduCard'
+import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_public/')({
   component: App,
@@ -8,8 +7,10 @@ export const Route = createFileRoute('/_public/')({
 
 function App() {
   return (
-    <div className="min-h-[calc(100vh-80px)] py-4 flex flex-col items-center justify-center">
-      <Card />
-    </div>
+    <>
+      <div className="min-h-[calc(100vh-80px)] mt-[80px] flex items-center justify-center px-8 py-12 bg-linear-to-b from-zinc-900 to-zinc-950">
+        <Card />
+      </div>
+    </>
   )
 }

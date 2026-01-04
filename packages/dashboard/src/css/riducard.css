@@ -20,63 +20,6 @@
     border-color: #E5D3C2;
 }
 
-.card {
-    @apply mx-4 py-4 px-4 rounded-md flex flex-col gap-y-2;
-    
-}
-
-.card-section-owner {
-    @apply w-fit py-1 px-2 flex rounded-full;
-}
-
-.card-section-owner h1 {
-    @apply mx-2 font-sans text-[11px] font-extrabold;
-}
-
-.card-section-title {
-    @apply py-1 px-2 rounded-md flex;
-}
-
-.card-section-title h1 {
-    @apply text-2xl;
-}
-
-.card-section-intro {
-    @apply py-1 px-2 flex flex-col justify-between gap-2 rounded-md;
-}
-
-.card-section-intro > div:nth-child(1) {
-    @apply relative h-fit flex justify-start rounded-md border-4;
-}
-
-.card-section-intro > div:nth-child(1) img {
-    @apply h-fit mx-auto py-2;
-}
-
-.card-section-intro > div:nth-child(1) div {
-    @apply absolute bottom-0 w-full h-16 py-2 flex justify-center items-center;
-}
-
-.card-section-intro > div:nth-child(1) div p {
-    @apply font-extrabold text-2xl;
-}
-
-.card-section-intro > div:nth-child(2) {
-    @apply flex flex-col justify-start items-center gap-2;
-}
-
-.card-section-intro > div:nth-child(2) h1 {
-    @apply wrap-break-word text-justify text-2xl leading-8;
-}
-
-.card-section-intro > div:nth-child(2) p {
-    @apply wrap-break-word text-justify text-sm;
-}
-
-.card-section-info {
-    @apply py-4 px-2 rounded-md flex flex-col items-center gap-4;
-}
-
 .card-section-info > div:nth-child(1) {
     @apply flex flex-wrap justify-center gap-2;
 }
@@ -94,7 +37,7 @@
 }
 
 .card-section-info > div:nth-child(2) {
-    @apply flex justify-between gap-4;
+    @apply flex flex-wrap justify-center items-center gap-4;
 }
 
 .card-section-info > div:nth-child(2) div {
