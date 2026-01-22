@@ -1,4 +1,4 @@
-use crate::discord::*;
+use crate::{discord::*, tools::mousetrap};
 use std::error::Error;
 use twilight_gateway::{Event, EventType};
 pub struct MessageCreate;
@@ -22,6 +22,8 @@ impl EventHandler for MessageCreate {
                 }
             }
         }
+
+        mousetrap(&ctx, &message).await;
 
         if let Some(callback) = HANDLERS
             .prefix_command_handlers

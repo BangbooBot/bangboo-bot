@@ -19,6 +19,8 @@ where
 pub struct Channels {
     #[serde(deserialize_with = "str_to_u64")]
     pub announcement: u64,
+    #[serde(deserialize_with = "str_to_u64")]
+    pub mousetrap: u64,
 }
 
 #[derive(Serialize, Deserialize)]

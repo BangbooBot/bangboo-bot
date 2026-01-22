@@ -1,7 +1,33 @@
+use twilight_http::request::AuditLogReason;
+use twilight_model::channel::Message;
 use crate::constants::*;
 use crate::discord::*;
-use imghash::*;
-use serenity::all::{CacheHttp, Context, CreateEmbed, CreateMessage, Message};
+use crate::functions::error;
+
+pub async fn mousetrap(ctx: &Context, message: &Message) {
+    if message.channel_id.get() != GUILD.channels.mousetrap {
+        return;
+    }
+
+    let guild_id = match message.guild_id.as_ref() {
+        Some(guild_id) => guild_id,
+        None => {
+            return;
+        }
+    };
+
+    let id = message.author.id;
+    let reason = "Captured by mousetrap.";
+
+    if let Err(err) = ctx.http
+        .create_ban(guild_id.clone(), id)
+        .delete_message_seconds(604_800)
+        .reason(reason)
+        .await {
+        error(&format!("Failed to ban user\n└ {:?}", err));
+        return;
+    }
+}
 
 /*
 static REGEXSTEAM: Lazy<Regex> =
@@ -11,6 +37,7 @@ static REGEXATTACHMENT: Lazy<Regex> = Lazy::new(|| {
 });
  */
 
+/*
 pub async fn filter_attachment(ctx: &Context, message: &Message) {
     let guild_id = match message.guild_id.as_ref() {
         Some(guild_id) => guild_id,
@@ -148,6 +175,7 @@ pub async fn filter_attachment(ctx: &Context, message: &Message) {
         }
     }
 }
+ */
 
 /*
 pub async fn filter_message(ctx: &Context, message: &Message) -> bool {
