@@ -103,7 +103,7 @@ pub async fn ban_action(
     for id in ids {
         match ctx
             .http
-            .create_ban(guild_id.clone(), user.id)
+            .create_ban(guild_id.clone(), id.clone())
             .delete_message_seconds(604_800)
             .reason(reason)
             .await

@@ -13,7 +13,7 @@ export default function Card() {
                     </h1>
                 </section>
                 <section className="bg-card-section py-1 px-2 rounded-md flex">
-                    <h1 className="font-[Anton] text-2xl text-card">
+                    <h1 className="font-[Anton] text-4xl text-card">
                         BANGBOO BOT
                     </h1>
                 </section>

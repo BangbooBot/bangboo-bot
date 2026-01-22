@@ -102,7 +102,7 @@ pub async fn kick_action(
     for id in ids {
         match ctx
             .http
-            .remove_guild_member(guild_id.clone(), user.id)
+            .remove_guild_member(guild_id.clone(), id.clone())
             .reason(reason)
             .await
         {
