@@ -2,7 +2,7 @@ use twilight_http::request::AuditLogReason;
 use twilight_model::channel::Message;
 use crate::constants::*;
 use crate::discord::*;
-use crate::functions::error;
+use crate::functions::*;
 
 pub async fn mousetrap(ctx: &Context, message: &Message) {
     if message.channel_id.get() != GUILD.channels.mousetrap {
