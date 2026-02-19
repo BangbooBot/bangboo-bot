@@ -1,12 +1,12 @@
 use crate::discord::HANDLERS;
-use crate::functions::{log, success, warn};
+use crate::functions::{log, warn};
 use crate::{env::ENV, functions::error};
 use std::sync::Arc;
 use tokio::task::JoinSet;
-use tokio::time::{interval, sleep, Duration};
+use tokio::time::{Duration, sleep};
 use twilight_cache_inmemory::{DefaultInMemoryCache, InMemoryCache, ResourceType};
 use twilight_gateway::{
-    Config, ConfigBuilder, Event, EventTypeFlags, Intents, MessageSender, Shard, ShardId,
+    Config, ConfigBuilder, Event, EventTypeFlags, Intents, MessageSender, Shard,
     StreamExt as _,
 };
 use twilight_http::Client;
@@ -14,9 +14,9 @@ use twilight_http_ratelimiting::RateLimiter;
 use twilight_model::application::interaction::InteractionData;
 
 pub struct App {
+    pub config: Config,
     pub http: Arc<Client>,
     pub cache: Arc<InMemoryCache>,
-    pub shards: Vec<Shard>,
 }
 
 #[derive(Clone)]
@@ -38,11 +38,26 @@ impl App {
         let http = Arc::new(http);
 
         let config = Config::new(token.clone(), intents);
+
+        let cache = Arc::new(
+            DefaultInMemoryCache::builder()
+                .resource_types(ResourceType::all())
+                .build(),
+        );
+
+        Self {
+            config,
+            http,
+            cache,
+        }
+    }
+
+    pub async fn run(&mut self) {
         let config_callback = |_, builder: ConfigBuilder| builder.build();
 
-        let shards = match twilight_gateway::create_recommended(
-            &http,
-            config.clone(),
+        let mut shards = match twilight_gateway::create_recommended(
+            &self.http,
+            self.config.clone(),
             config_callback,
         )
         .await
@@ -52,43 +67,72 @@ impl App {
                 error(&format!("Error trying to create shards\n└ {:?}", err));
                 panic!();
             }
-        }.collect::<Vec<_>>();
-
-        let cache = Arc::new(
-            DefaultInMemoryCache::builder()
-                .resource_types(ResourceType::all())
-                .build(),
-        );
-
-        Self {
-            http,
-            cache,
-            shards,
         }
-    }
+        .collect::<Vec<_>>();
 
-    pub async fn run(&mut self) {
-        let mut set = JoinSet::new();
-        for shard in self.shards.drain(..) {
-            set.spawn(App::shard_handle(
-                self.http.clone(),
-                self.cache.clone(),
-                shard,
-            ));
-        }
-        while let Some(res) = set.join_next().await {
-            match res {
-                Ok(_) => log("Shard finished successfully."),
-                Err(e) => error(&format!("{:?}", e)),
+        const RESHARD_DURATION: Duration = Duration::from_secs(60 * 60 * 8);
+
+        loop {
+            let mut set = JoinSet::new();
+            for shard in shards {
+                set.spawn(App::shard_handle(
+                    self.http.clone(),
+                    self.cache.clone(),
+                    shard,
+                ));
             }
+
+            let reshard_timer = sleep(RESHARD_DURATION);
+            tokio::pin!(reshard_timer);
+
+            let mut has_errors = false;
+            loop {
+                tokio::select! {
+                    result = set.join_next() => {
+                        match result {
+                            Some(Ok(_)) => log("Shard finished successfully."),
+                            Some(Err(e)) => {
+                                error(&format!("Shard task error (panic/cancel): {:?}", e));
+                                has_errors = true;
+                            }
+                            None => {
+                                warn("All shards finished before the 1h timer.");
+                                break;
+                            }
+                        }
+                    }
+
+                    _ = &mut reshard_timer => {
+                        log("8 hours passed, initiating reshard...");
+                        break;
+                    }
+                }
+            }
+
+            if has_errors {
+                warn("Errors were detected during the shard session.");
+            }
+
+            shards = match twilight_gateway::create_recommended(
+                &self.http,
+                self.config.clone(),
+                config_callback,
+            )
+            .await
+            {
+                Ok(shards) => shards,
+                Err(err) => {
+                    error(&format!("Error trying to create shards\n└ {:?}", err));
+                    panic!();
+                }
+            }
+            .collect::<Vec<_>>();
+
+            set.abort_all();
         }
     }
 
-    pub async fn shard_handle(
-        http: Arc<Client>,
-        cache: Arc<InMemoryCache>,
-        mut shard: Shard,
-    ) {
+    pub async fn shard_handle(http: Arc<Client>, cache: Arc<InMemoryCache>, mut shard: Shard) {
         let ctx = Context {
             http,
             cache,
@@ -100,7 +144,7 @@ impl App {
                 error(&format!("Error receiving event\n└ {:?}", item.unwrap_err()));
                 continue;
             };
-            
+
             // Update the cache with the event.
             ctx.cache.update(&event);
 
@@ -115,7 +159,7 @@ impl App {
             }
             return;
         }
-        
+
         match event {
             Event::InteractionCreate(interaction) => {
                 if let Some(data) = &interaction.data {
@@ -139,8 +183,9 @@ impl App {
                             }
                         }
                         InteractionData::MessageComponent(message_component) => {
-                            if let Some(callback) =
-                                HANDLERS.message_component_handlers.get(message_component.custom_id.as_str())
+                            if let Some(callback) = HANDLERS
+                                .message_component_handlers
+                                .get(message_component.custom_id.as_str())
                             {
                                 if let Err(err) = callback.run(ctx, &interaction).await {
                                     error(&format!("Modal submit error!\n└ {:?}", err));
