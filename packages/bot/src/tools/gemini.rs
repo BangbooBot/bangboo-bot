@@ -3,7 +3,7 @@ use genai::Client;
 use once_cell::sync::Lazy;
 use std::error::Error;
 
-const MODEL_GEMINI: &str = "gemini-2.5-flash";
+const MODEL_GEMINI: &str = "gemini-3-flash-preview";
 
 pub static GEMINI: Lazy<Client> = Lazy::new(|| Client::default());
 

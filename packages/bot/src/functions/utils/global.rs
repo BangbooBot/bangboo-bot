@@ -39,6 +39,7 @@ pub async fn global_message(
 
     let background = match event {
         EventType::MemberAdd => {
+            /*
             let date = match SystemTime::now().duration_since(UNIX_EPOCH) {
                 Ok(duration) => duration.as_millis(),
                 Err(_) => 0,
@@ -49,13 +50,13 @@ pub async fn global_message(
             };
             let account_age = date - user.id.timestamp() as u128;
             const TIME_LIMIT: u128 = 300 * 1000;
-            if join_age < TIME_LIMIT {
-                CARD_NEW
-            } else if account_age < TIME_LIMIT {
+            if join_age < TIME_LIMIT || account_age < TIME_LIMIT {
                 CARD_NEW
             } else {
                 CARD_BACK
             }
+            */
+            CARD_NEW
         }
         EventType::MemberRemove => CARD_LEFT,
         EventType::BanAdd => CARD_MOD,
