@@ -14,7 +14,7 @@ pub const FONT_FREDOKA: &[u8] = include_bytes!("../assets/fonts/Fredoka-Medium.t
 pub const FONT_ROBOTO: &[u8] = include_bytes!("../assets/fonts/Roboto-Medium.ttf");
 
 // Cards
-pub const CARD_BACK: &[u8] = include_bytes!("../assets/cards/card-back.png");
+//pub const CARD_BACK: &[u8] = include_bytes!("../assets/cards/card-back.png");
 pub const CARD_LEFT: &[u8] = include_bytes!("../assets/cards/card-left.png");
 pub const CARD_MOD: &[u8] = include_bytes!("../assets/cards/card-mod.png");
 pub const CARD_NEW: &[u8] = include_bytes!("../assets/cards/card-new.png");
