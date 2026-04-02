@@ -54,7 +54,7 @@ pub fn social_component() -> Component {
                     name: None,
                     animated: false,
                 })
-                .url("https://github.com/Cesio137")
+                .url("https://github.com/nathancmiguel")
                 .build(),
         ))
         .component(Component::Button(
