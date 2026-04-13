@@ -14,7 +14,8 @@ export function homeRoute(app: FastifyTypedInstance, client: Client<true>) {
                     200: z.object({
                         message: z.string(),
                         guilds: z.number(),
-                        users: z.number()
+                        users: z.number(),
+                        commands: z.number()
                     })
                 }
             },
@@ -23,7 +24,8 @@ export function homeRoute(app: FastifyTypedInstance, client: Client<true>) {
             return res.status(StatusCodes.OK).send({
                 message: `🍃 Online on discord as ${client.user.username}`,
                 guilds: client.guilds.cache.size,
-                users: client.users.cache.size
+                users: client.users.cache.size,
+                commands: client.application.commands.cache.size
             });
         });
 }
