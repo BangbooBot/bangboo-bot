@@ -7,8 +7,8 @@ export const env = await validateEnv(z.looseObject({
     WEBHOOK_LOGS_URL: z.url().optional(),
     GUILD_ID: z.string().optional(),
     SERVER_PORT: z.coerce.number().min(1).optional(),
-    CLIENT_ID: z.string(),
-    CLIENT_SECRET: z.string(),
-    DATABASE_URL: z.url(),
-    REDIS_URL: z.url(),
+    CLIENT_ID: z.string("Discord Client ID is required").min(1),
+    CLIENT_SECRET: z.string("Discord Client Secret is required").min(1),
+    DATABASE_URL: z.url("Database URL is required").min(1),
+    REDIS_URL: z.url("Redis URL is required").min(1),
 }));

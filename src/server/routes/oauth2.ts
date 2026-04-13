@@ -2,7 +2,6 @@ import { Client } from "discord.js";
 import type { FastifyTypedInstance } from "#types/fastify.js";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
-import { env } from "#env";
 import { oauth2Authorize, oauth2Token } from "#functions";
 
 const credentialsSchema = z.object({
@@ -10,6 +9,11 @@ const credentialsSchema = z.object({
     access_token: z.string(),
     expires_in: z.number(),
     scope: z.string()
+})
+
+const errorSchema = z.object({
+    error: z.string(),
+    error_description: z.string()
 })
 
 export function oauth2AuthorizeRoute(app: FastifyTypedInstance, client: Client<true>) {
@@ -26,9 +30,9 @@ export function oauth2AuthorizeRoute(app: FastifyTypedInstance, client: Client<t
             const response = await oauth2Authorize();
             if (!response.ok) {
                 const json = await response.json();
-                res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(json);
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(json);
             }
-            res.redirect(response.url);
+            return res.redirect(response.url);
         },
     );
 }
@@ -46,10 +50,7 @@ export function oauth2TokenRoute(app: FastifyTypedInstance, client: Client<true>
                 }),
                 response: {
                     200: credentialsSchema,
-                    ...z.object({
-                        error: z.string(),
-                        error_description: z.string()
-                    })
+                    500: errorSchema.or(z.array(z.any()))
                 }
             },
         },
@@ -57,11 +58,20 @@ export function oauth2TokenRoute(app: FastifyTypedInstance, client: Client<true>
             const response = await oauth2Token(req.query.code);
             if (!response.ok) {
                 const json = await response.json();
-                res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(json);
+                const error = errorSchema.safeParse(json);
+                if (!error.success) {
+                    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error.error.issues);
+                } else {
+                    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error.data);
+                }
             }
             const json = await response.json();
-            const token = credentialsSchema.parse(json);
-            res.status(StatusCodes.OK).send(token);
+            const token = credentialsSchema.safeParse(json);
+            if (!token.success) {
+                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(token.error.issues);
+            } else {
+                return res.status(StatusCodes.OK).send(token.data);
+            }
         },
     );
 }

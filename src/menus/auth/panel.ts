@@ -3,21 +3,22 @@ import { brBuilder, createContainer, createRow, createSeparator } from "@magicya
 import { ButtonBuilder, ButtonStyle, InteractionEditReplyOptions, type InteractionReplyOptions } from "discord.js";
 
 export function authPanelMenu<R>(): R {
-    const customId = (action: string) => `/auth/panel/${action}`;
+    //const customId = (action: string) => `/auth/panel/${action}`;
+    const url = "https://discord.com/oauth2/authorize?client_id=1270823317351301374&response_type=code&redirect_uri=+http%3A%2F%2Flocalhost%3A3001%2Foauth2%2Ftoken&scope=email+identify+guilds";
     const container = createContainer(constants.colors.green,
         brBuilder(
-            `# ${icon.icons_stagelocked} Autorização`,
-            "Clique no botao abaixo para dar autorização ao bot.",
-            "-# **Você pode revogar quando quiser em**",
-            "-# **Configurações > Aplicativos autorizados**"
+            `# ${icon.icons_stagelocked} OAuth2 Autorization`,
+            "Click the button below to authorize the bot.",
+            "-# **You can revoke it whenever you want at**",
+            "-# **Settings > Authorized applications**"
         ),
         createSeparator(false, false),
         createRow(
             new ButtonBuilder({
-                customId: customId("start"),
-                label: "Iniciar",
+                label: "Authorize",
                 emoji: emojis.static.lock,
-                style: ButtonStyle.Success
+                url,
+                style: ButtonStyle.Link
             })
         )
     );
@@ -26,28 +27,4 @@ export function authPanelMenu<R>(): R {
         flags: ["Ephemeral", "IsComponentsV2"],
         components: [container]
     } satisfies InteractionReplyOptions) as R;
-}
-
-export function authInfoMenu<R>(body: string): R {
-    const customId = (action: string) => `/auth/panel/${action}`;
-    const container = createContainer(constants.colors.green,
-        brBuilder(
-            `# ${icon.icons_stagelocked} Autorização`,
-            body
-        ),
-        createSeparator(false, false),
-        createRow(
-            new ButtonBuilder({
-                customId: customId("start"),
-                label: "Iniciar",
-                emoji: emojis.static.lock,
-                style: ButtonStyle.Success
-            })
-        )
-    );
-
-    return ({
-        flags: ["IsComponentsV2"],
-        components: [container]
-    } satisfies InteractionEditReplyOptions) as R;
 }

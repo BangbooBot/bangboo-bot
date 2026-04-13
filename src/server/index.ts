@@ -17,47 +17,49 @@ import { registerRoutes } from "./routes/index.js";
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
-app.register(
-    cors, 
-    { 
+
+createEvent({
+  name: "Start Fastify Server",
+  event: "clientReady", once: true,
+  async run(client) {
+    await app.register(
+      fastifyCors,
+      {
         origin: "*",
         methods: ["GET", "POST", "DELETE"],
         //credentials: true
-    }
-);
-app.register(fastifySwagger, {
-  openapi: {
-    info: {
-      title: "Bangboo API",
-      description: "Backend for Bangboo's dashboard",
-      version: "0.0.1",
-    },
+      }
+    );
+    await app.register(fastifySwagger, {
+      openapi: {
+        info: {
+          title: "Bangboo API",
+          description: "Backend for Bangboo's dashboard",
+          version: "0.0.1",
+        },
+      },
+      transform: jsonSchemaTransform,
+    });
+
+    await app.register(ScalarApiReference, {
+      routePrefix: "/docs",
+    });
+
+    registerRoutes(app, client);
+
+    const port = env.SERVER_PORT ?? 3001;
+
+    await app.ready();
+    await app.listen({ port, host: "0.0.0.0" })
+      .then(() => {
+        console.log(ck.green(
+          `● ${ck.underline("Fastify")} server listening on port ${port}`
+        ));
+        console.log(ck.yellow(`📚 Docs avaliable at http://localhost:${port}/docs`));
+      })
+      .catch(err => {
+        console.error(err);
+        process.exit(1);
+      });
   },
-  transform: jsonSchemaTransform,
-});
-
-app.register(ScalarApiReference, {
-  routePrefix: "/docs",
-});
-
-createEvent({
-    name: "Start Fastify Server",
-    event: "clientReady", once: true,
-    async run(client) {
-        registerRoutes(app, client);
-
-        const port = env.SERVER_PORT ?? 3001;
-
-        await app.listen({ port, host: "0.0.0.0" })
-        .then(() => {
-            console.log(ck.green(
-                `● ${ck.underline("Fastify")} server listening on port ${port}`
-            ));
-            console.log(ck.yellow(`📚 Docs avaliable at http://localhost:${port}/docs`));
-        })
-        .catch(err => {
-            console.error(err);
-            process.exit(1);
-        });
-    },
 });
