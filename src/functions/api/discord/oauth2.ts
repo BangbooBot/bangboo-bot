@@ -2,7 +2,7 @@ import { env } from "#env";
 import { RouteBases } from "discord.js";
 
 export async function oauth2Authorize(): Promise<Response> {
-    const url = "https://discord.com/oauth2/authorize?client_id=1270823317351301374&response_type=code&redirect_uri=+http%3A%2F%2Flocalhost%3A3001%2Foauth2%2Ftoken&scope=email+identify+guilds";
+    const url = `${RouteBases.api}/oauth2/authorize?client_id=${env.CLIENT_ID}&response_type=code&redirect_uri=+http%3A%2F%2Flocalhost%3A3001%2Foauth2%2Fredirect&scope=identify+guilds+email`;
     return fetch(url, {
         method: "GET",
         headers: {

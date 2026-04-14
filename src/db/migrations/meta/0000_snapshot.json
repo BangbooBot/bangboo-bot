@@ -1,5 +1,5 @@
 {
-  "id": "d20b91b6-82ef-44ef-8fac-a36227e12ef1",
+  "id": "b092342b-8b69-45bf-aa77-225119e308ea",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,7 +10,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "bigint",
           "primaryKey": true,
           "notNull": true
         },
@@ -18,28 +18,28 @@
           "name": "access",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "type": {
           "name": "type",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "expires_at": {
-          "name": "expires_at",
+        "expires_in": {
+          "name": "expires_in",
           "type": "date",
           "primaryKey": false,
-          "notNull": false
-        },
-        "refresh": {
-          "name": "refresh",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "scope": {
           "name": "scope",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "avatar": {
+          "name": "avatar",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false

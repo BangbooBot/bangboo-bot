@@ -1,10 +1,10 @@
-import { date, pgTable, serial, varchar } from "drizzle-orm/pg-core";
+import { bigint, date, pgTable, varchar } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  access: varchar("access"),
-  type: varchar("type"),
-  expires_at: date("expires_at"),
-  refresh: varchar("refresh"),
-  scope: varchar("scope"),
+  id: bigint("id", { mode: "bigint" }).primaryKey(),
+  access: varchar("access").notNull(),
+  type: varchar("type").notNull(),
+  expires_in: date("expires_in", { mode: "date" }).notNull(),
+  scope: varchar("scope").notNull(),
+  avatar: varchar("avatar"),
 });

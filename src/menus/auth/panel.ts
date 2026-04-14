@@ -4,7 +4,7 @@ import { ButtonBuilder, ButtonStyle, InteractionEditReplyOptions, type Interacti
 
 export function authPanelMenu<R>(): R {
     //const customId = (action: string) => `/auth/panel/${action}`;
-    const url = "https://discord.com/oauth2/authorize?client_id=1270823317351301374&response_type=code&redirect_uri=+http%3A%2F%2Flocalhost%3A3001%2Foauth2%2Ftoken&scope=email+identify+guilds";
+    const url = "http://localhost:3001/oauth2/authorize";
     const container = createContainer(constants.colors.green,
         brBuilder(
             `# ${icon.icons_stagelocked} OAuth2 Autorization`,
