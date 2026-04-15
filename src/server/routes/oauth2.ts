@@ -1,16 +1,9 @@
-import { APIUser, Client } from "discord.js";
+import { db, users as usersTable } from "#database";
+import { oauth2Authorize, oauth2TokenExchange, userInfo } from "#functions";
 import type { FastifyTypedInstance } from "#types/fastify.js";
+import { APIUser, Client, RESTPostOAuth2AccessTokenResult } from "discord.js";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
-import { oauth2Authorize, oauth2Token, userInfo } from "#functions";
-import { db, users as usersTable } from "#database";
-
-const credentialsSchema = z.object({
-    token_type: z.literal("Bearer"),
-    access_token: z.string(),
-    expires_in: z.number(),
-    scope: z.string()
-});
 
 const userSchema = z.object({
     id: z.string(),
@@ -34,7 +27,7 @@ export function oauth2AuthorizeRoute(app: FastifyTypedInstance, client: Client<t
                 tags: ["oauth2"],
             },
         },
-        async (req, res) => {
+        async (_, res) => {
             const response = await oauth2Authorize();
             if (!response.ok) {
                 const json = await response.json();
@@ -63,18 +56,15 @@ export function oauth2RedirectRoute(app: FastifyTypedInstance, client: Client<tr
             },
         },
         async (req, res) => {
-            const tokenRes = await oauth2Token(req.query.code);
+            const tokenRes = await oauth2TokenExchange(req.query.code);
             if (!tokenRes.ok) {
                 const errJson = await tokenRes.json();
                 return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errJson as any);
             }
 
-            const token = credentialsSchema.safeParse(await tokenRes.json());
-            if (!token.success) {
-                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(token.error.issues);
-            }
+            const token = (await tokenRes.json()) as RESTPostOAuth2AccessTokenResult;
 
-            const userRes = await userInfo(token.data.access_token);
+            const userRes = await userInfo(token.access_token);
             if (!userRes.ok) {
                 const errJson = await userRes.json();
                 return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errJson as any);
@@ -82,22 +72,24 @@ export function oauth2RedirectRoute(app: FastifyTypedInstance, client: Client<tr
 
             const user = (await userRes.json()) as APIUser;
             const now = Date.now();
-            const expires = new Date(now + token.data.expires_in * 1000);
+            const expires = new Date(now + token.expires_in * 1000);
             await db.insert(usersTable).values({
                 id: BigInt(user.id),
                 avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : undefined,
                 expires_in: expires,
-                access: token.data.access_token,
-                scope: token.data.scope,
-                type: token.data.token_type
+                access_token: token.access_token,
+                refresh_token: token.refresh_token,
+                token_type: token.token_type,
+                scope: token.scope
             }).onConflictDoUpdate({
                 target: usersTable.id,
                 set: {
                     avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : undefined,
                     expires_in: expires,
-                    access: token.data.access_token,
-                    type: token.data.token_type,
-                    scope: token.data.scope
+                    access_token: token.access_token,
+                    refresh_token: token.refresh_token,
+                    token_type: token.token_type,
+                    scope: token.scope
                 }
             });
 
@@ -105,7 +97,7 @@ export function oauth2RedirectRoute(app: FastifyTypedInstance, client: Client<tr
                 id: user.id,
                 avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : undefined,
                 expires_in: expires,
-                access_token: token.data.access_token,
+                access_token: token.access_token,
             });
 
             if (!userData.success) {

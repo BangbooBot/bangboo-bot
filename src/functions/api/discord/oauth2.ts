@@ -1,8 +1,16 @@
 import { env } from "#env";
-import { RouteBases } from "discord.js";
+import { RESTPostOAuth2AccessTokenResult, RouteBases } from "discord.js";
+
+//type TokenExchangeResult = RESTPostOAuth2AccessTokenResult
 
 export async function oauth2Authorize(): Promise<Response> {
-    const url = `${RouteBases.api}/oauth2/authorize?client_id=${env.CLIENT_ID}&response_type=code&redirect_uri=+http%3A%2F%2Flocalhost%3A3001%2Foauth2%2Fredirect&scope=identify+guilds+email`;
+    const params = new URLSearchParams({
+        client_id: env.CLIENT_ID,
+        response_type: "code",
+        redirect_uri: "http://localhost:3001/oauth2/redirect",
+        scope: "identify guilds email"
+    });
+    const url = `${RouteBases.api}/oauth2/authorize?${params.toString()}`;
     return fetch(url, {
         method: "GET",
         headers: {
@@ -11,20 +19,20 @@ export async function oauth2Authorize(): Promise<Response> {
     });
 }
 
-export async function oauth2Token(code: string): Promise<Response> {
+export async function oauth2TokenExchange(code: string): Promise<Response> {
     const params = new URLSearchParams({
         client_id: env.CLIENT_ID,
         client_secret: env.CLIENT_SECRET,
-        grant_type: "client_credentials",
-        scope: "identify connections",
-        code
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: "http://localhost:3001/oauth2/redirect"
     });
     const res = await fetch(`${RouteBases.api}/oauth2/token`, {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: params
+        body: params,
     });
     return res;
 }
