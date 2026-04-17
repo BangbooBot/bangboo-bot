@@ -1,6 +1,6 @@
 import { bigint, date, pgTable, varchar } from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
+export const usersTable = pgTable("users", {
   id: bigint("id", { mode: "bigint" }).primaryKey(),
   access_token: varchar("access_token").notNull(),
   refresh_token: varchar("refresh_token").notNull(),

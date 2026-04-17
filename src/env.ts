@@ -9,6 +9,7 @@ export const env = await validateEnv(z.looseObject({
     SERVER_PORT: z.coerce.number().min(1).optional(),
     CLIENT_ID: z.string("Discord Client ID is required").min(1),
     CLIENT_SECRET: z.string("Discord Client Secret is required").min(1),
+    REDIRECT_URI: z.url("Redirect uri is required").min(1),
     DATABASE_URL: z.url("Database URL is required").min(1),
     REDIS_URL: z.url("Redis URL is required").min(1),
 }));

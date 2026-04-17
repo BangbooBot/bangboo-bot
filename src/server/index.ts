@@ -1,6 +1,5 @@
 import { createEvent } from "#base";
 import { env } from "#env";
-import cors from "@fastify/cors";
 import {
   serializerCompiler,
   validatorCompiler,
@@ -9,10 +8,12 @@ import {
 } from "fastify-type-provider-zod";
 import { fastifySwagger } from "@fastify/swagger";
 import { fastifyCors } from "@fastify/cors";
+import { fastifyMiddie } from "@fastify/middie";
 import ScalarApiReference from "@scalar/fastify-api-reference";
 import ck from "chalk";
 import fastify from "fastify";
 import { registerRoutes } from "./routes/index.js";
+import { subsystem } from "./subsystem.js";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 app.setValidatorCompiler(validatorCompiler);
@@ -44,6 +45,10 @@ createEvent({
     await app.register(ScalarApiReference, {
       routePrefix: "/docs",
     });
+
+    await app.register(fastifyMiddie);
+
+    subsystem(app, client);
 
     registerRoutes(app, client);
 

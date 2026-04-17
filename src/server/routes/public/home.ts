@@ -4,7 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import z from "zod";
 
 export function homeRoute(app: FastifyTypedInstance, client: Client<true>) {
-    app.get("/",
+    app.get("/public",
         {
             schema: {
                 summary: "Get bot status",

@@ -25,6 +25,7 @@
     "@better-auth/drizzle-adapter": "latest",
     "@constatic/base": "latest",
     "@fastify/cors": "latest",
+    "@fastify/middie": "latest",
     "@fastify/swagger": "latest",
     "@magicyan/discord": "latest",
     "@napi-rs/canvas": "latest",

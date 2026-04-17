@@ -1,7 +1,7 @@
-import { users } from "./users.js";
-
-export { users };
+import { sessionsTable } from "./session.js";
+import { usersTable } from "./users.js";
 
 export const schema = {
-  users,
+  usersTable,
+  sessionsTable,
 };
