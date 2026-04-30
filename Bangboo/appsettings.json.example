@@ -1,0 +1,22 @@
+{
+  "ConnectionStrings": {
+    "DbConnection": "Host=localhost;Username=bangboo;Password=bangboo;Database=bangboo;Port=5432;"
+  },
+  "Discord": {
+    "Token": ""
+  },
+  "Env": {
+    "DiscordApiUrl": "https://discord.com/api/v10",
+    "ClientId": ,
+    "ClientSecret": "",
+    "RedirectUrl":"http://localhost:3000/",
+    "RedisConnection": "redis:6379"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
