@@ -1,13 +1,14 @@
-using bangboo_backend.Data;
+using Bangboo;
+using Bangboo.Data;
+using Bangboo.Models;
+using Bangboo.Modules.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
-public class DatabaseService
+public class DatabaseService : ServerServicesModule
 {
-    private readonly AppDbContext _dbContext;
-
-    public DatabaseService(AppDbContext dbContext)
+    public DatabaseService(IHost host, AppDbContext dbContext, IOptions<Env> options) : base(host, dbContext, options)
     {
-        _dbContext = dbContext;
     }
 
     public async Task<List<UsersModel>> GetUsers(ulong? id)

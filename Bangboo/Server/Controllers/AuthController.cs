@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Bangboo.Models;
 using Bangboo.Server.DTOs;
 using Bangboo.Server.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ public class AuthController : ControllerBase
 {
     private readonly DatabaseService _databaseService;
     private readonly AuthService _authService;
-    
+
     public AuthController(DatabaseService databaseService, AuthService authService)
     {
         _databaseService = databaseService;
@@ -33,7 +34,7 @@ public class AuthController : ControllerBase
     {
         var res = await _authService.Authorize();
         res.EnsureSuccessStatusCode();
-        
+
         var redirectUri = res.RequestMessage?.RequestUri?.ToString();
         if (redirectUri == null)
         {
@@ -46,13 +47,13 @@ public class AuthController : ControllerBase
 
             return StatusCode(StatusCodes.Status500InternalServerError, error);
         }
-        
+
         return Ok(new AuthorizeResponse
         {
             Url = redirectUri
         });
     }
-    
+
     /// <summary>
     /// Login user
     /// </summary>
@@ -66,7 +67,7 @@ public class AuthController : ControllerBase
     {
         var tokenExchangeRes = await _authService.TokenExchange(body.Code);
         //tokenExchangeRes.EnsureSuccessStatusCode();
-        
+
         var tokenExchangeData = await tokenExchangeRes.Content.ReadFromJsonAsync<JsonAuthToken>();
         if (tokenExchangeData == null)
         {
@@ -76,13 +77,14 @@ public class AuthController : ControllerBase
                 Error = "Failed to exchange token",
                 Message = "Token exchange response is null"
             };
-            
-            return StatusCode(StatusCodes.Status500InternalServerError, error);       
+
+            return StatusCode(StatusCodes.Status500InternalServerError, error);
         }
+
         var expiresIn = DateOnly.FromDateTime(
             DateTime.UtcNow.AddSeconds(tokenExchangeData.ExpiresIn)
         );
-        
+
         var userRes = await _authService.GetUserInfo(tokenExchangeData.AccessToken);
         var user = await userRes.Content.ReadFromJsonAsync<JsonUser>();
 
@@ -94,69 +96,82 @@ public class AuthController : ControllerBase
                 Error = "Failed to get user info",
                 Message = "User info response is null"
             };
-            
-            return StatusCode(StatusCodes.Status500InternalServerError, error);      
+
+            return StatusCode(StatusCodes.Status500InternalServerError, error);
         }
 
         var dbCtx = _databaseService.GetDbContext();
-        
-        var userModel = await dbCtx.Users
-            .FirstOrDefaultAsync(u => u.Id == user.Id);
+        var userModel = await dbCtx.Users.Where(u => u.Id == user.Id).FirstOrDefaultAsync();
         if (userModel is null)
         {
             userModel = new UsersModel
             {
                 Id = user.Id,
-                AccessToken = tokenExchangeData.AccessToken,
-                RefreshToken = tokenExchangeData.RefreshToken,
-                ExpiresIn = expiresIn,
-                TokenType = tokenExchangeData.TokenType,
-                Scope = tokenExchangeData.Scope,
+                Username = user.Username,
+                Avatar = user.AvatarHash
             };
 
             await dbCtx.Users.AddAsync(userModel);
         }
         else
         {
-            userModel.AccessToken = tokenExchangeData.AccessToken;
-            userModel.RefreshToken = tokenExchangeData.RefreshToken;
-            userModel.ExpiresIn = expiresIn;
-            userModel.TokenType = tokenExchangeData.TokenType;
-            userModel.Scope = tokenExchangeData.Scope;
+            userModel.Id = user.Id;
+            userModel.Username = user.Username;
+            userModel.Avatar = user.AvatarHash;
         }
         
+        var authModel = await dbCtx.Auths.Where(a => a.FkUserId == user.Id).FirstOrDefaultAsync();
+        if (authModel is null)
+        {
+            authModel = new AuthsModel
+            {
+                AccessToken = tokenExchangeData.AccessToken,
+                RefreshToken = tokenExchangeData.RefreshToken,
+                TokenType = tokenExchangeData.TokenType,
+                Scope = tokenExchangeData.Scope,
+                FkUserId = user.Id
+            };
+            
+            authModel = (await dbCtx.Auths.AddAsync(authModel)).Entity;
+        }
+        else
+        {
+            authModel.AccessToken = tokenExchangeData.AccessToken;
+            authModel.RefreshToken = tokenExchangeData.RefreshToken;
+            authModel.TokenType = tokenExchangeData.TokenType;
+            authModel.Scope = tokenExchangeData.Scope;
+            authModel.FkUserId = user.Id;
+        }
+        
+        var headers = HttpContext.Request.Headers;
+        var userAgent = headers.UserAgent.ToString();
+        var language = headers.AcceptLanguage.ToString();
         
         byte[] buffer = new byte[8];
         RandomNumberGenerator.Fill(buffer);
         ulong sessionId = BitConverter.ToUInt64(buffer, 0);
-        var sessionModel = await dbCtx.Sessions
+        var sessionModel = await dbCtx.Sessions.Where(s => s.FkAuthId == authModel.Id)
             .FirstOrDefaultAsync(s => s.Id == sessionId);
         if (sessionModel is null)
         {
             sessionModel = new SessionsModel
             {
                 Id = sessionId,
-                ExpiresIn = expiresIn,
-                UserAgent = "",
-                Platform = "",
-                Language = "",
-                Avatar = user.AvatarHash,
-                FkUserId = user.Id,
+                UserAgent = userAgent,
+                Language = language,
+                FkAuthId = authModel.Id
             };
-            var userDbRes = await dbCtx.Sessions.AddAsync(sessionModel);
+            sessionModel = (await dbCtx.Sessions.AddAsync(sessionModel)).Entity;
         }
         else
         {
-            sessionModel.ExpiresIn = expiresIn;
-            sessionModel.UserAgent = "";
-            sessionModel.Platform = "";
-            sessionModel.Language = "";
-            sessionModel.Avatar = $"https://cdn.discordapp.com/avatars/{user.Id}/{user.AvatarHash}.png?size=64";
-            sessionModel.FkUserId = user.Id;
+            sessionModel.UserAgent = userAgent;
+            sessionModel.Language = language;
+            sessionModel.FkAuthId = authModel.Id;
         }
-        
+
         await dbCtx.SaveChangesAsync();
-        
+
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
@@ -165,7 +180,7 @@ public class AuthController : ControllerBase
             Expires = DateTimeOffset.UtcNow.AddSeconds(tokenExchangeData.ExpiresIn)
         };
         HttpContext.Response.Cookies.Append("SessionId", sessionId.ToString(), cookieOptions);
-        
+
         return Ok(new LoginResponse
         {
             Username = user.Username,
@@ -173,39 +188,30 @@ public class AuthController : ControllerBase
             ExpiresIn = expiresIn
         });
     }
-    
+
     /// <summary>
     /// Logout user
     /// </summary>
     /// <remarks>
     /// Remove user session from database
     /// </remarks>
-    [HttpPost("logout")]
+    [HttpDelete("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PostLogout()
+    public async Task<IActionResult> DeleteLogout()
     {
-        var sessionId = 0UL;
-        if (ulong.TryParse(HttpContext.Request.Cookies["SessionId"] ?? "0", out ulong result))
+        var (result, session) = await _authService.ValidateSession(HttpContext.Request);
+        if (!result)
         {
-            sessionId = result;      
-            HttpContext.Response.Cookies.Delete("SessionId");
+            return NotFound();
         }
         
         var dbCtx = _databaseService.GetDbContext();
-        var sessionModel = await dbCtx.Sessions
-            .FirstOrDefaultAsync(s => s.Id == sessionId);
-        if (sessionModel is null)
-        {
-            return StatusCode(StatusCodes.Status404NotFound);
-        }
-        else
-        {
-            dbCtx.Sessions.Remove(sessionModel);
-        }
-        
+        var _ = await dbCtx.Sessions.Where(s => s.Id == session.Id)
+            .ExecuteDeleteAsync();
+
         await dbCtx.SaveChangesAsync();
-        
+
         return Ok();
     }
 }

@@ -1,16 +1,43 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using bangboo_backend.Data;
 using Bangboo;
+using Bangboo.Data;
+using Bangboo.Modules;
+using Bangboo.Modules.Services;
 using Bangboo.Server.Services;
-using Bangboo.Utils.Tools;
 using Microsoft.EntityFrameworkCore;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
-using NetCord.Hosting.Services.Commands;
+using NetCord.Rest;
 using Scalar.AspNetCore;
+
+var discordServiceModuleType = typeof(DiscordServiceModule);
+var discordTypes = typeof(Program).Assembly
+    .GetTypes()
+    .Where(type =>
+        type is { IsClass: true, IsAbstract: false } &&
+        discordServiceModuleType.IsAssignableFrom(type));
+
+var serverServiceModuleType = typeof(ServerServicesModule);
+var serverTypes = typeof(Program).Assembly
+    .GetTypes()
+    .Where(type =>
+        type is { IsClass: true, IsAbstract: false } &&
+        serverServiceModuleType.IsAssignableFrom(type));
+
+var middlewareServiceModuleType = typeof(MiddlewareModule);
+var middlewareTypes = typeof(Program).Assembly
+    .GetTypes()
+    .Where(type =>
+        type is { IsClass: true, IsAbstract: false } &&
+        type != middlewareServiceModuleType &&
+        middlewareServiceModuleType.IsAssignableFrom(type) &&
+        (
+            type.GetMethod("Invoke") is not null ||
+            type.GetMethod("InvokeAsync") is not null
+        ));
 
 // Web API
 var builder = WebApplication.CreateBuilder(args);
@@ -23,8 +50,13 @@ var discordBuilder = Host.CreateDefaultBuilder()
     })
     .ConfigureServices(services =>
     {
-        services.AddGatewayHandlers(typeof(Program).Assembly);
-        services.AddScoped<AutomodService>();
+        services.AddOptions<Env>()
+            .Bind(builder.Configuration.GetSection("Env"))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddSingleton<Emojis>(_ => new Emojis());
+
         services.AddDbContext<AppDbContext>(options =>
         {
             options.UseNpgsql(
@@ -33,6 +65,14 @@ var discordBuilder = Host.CreateDefaultBuilder()
         });
 
         services.AddScoped<DatabaseService>();
+        //services.AddScoped<AutomodService>();
+
+        foreach (var moduleType in discordTypes)
+        {
+            services.AddScoped(moduleType);
+        }
+
+        services.AddGatewayHandlers(typeof(Program).Assembly);
     })
     .UseApplicationCommands();
 
@@ -45,15 +85,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowDashboard", policy =>
     {
+
+        policy.WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
         /*
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-        */
         policy.AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
+        */
     });
 });
 
@@ -75,9 +116,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DbConnection")
     );
 });
+builder.Services.AddSingleton(_ => bot.Services.GetRequiredService<RestClient>());
+builder.Services.AddSingleton(_ => bot.Services.GetRequiredService<GatewayClient>());
 builder.Services.AddScoped<DatabaseService>();
-builder.Services.AddScoped<DiscordService>(_ => new DiscordService(bot));
-builder.Services.AddScoped<AuthService>();
+foreach (var moduleType in serverTypes)
+{
+    builder.Services.AddScoped(moduleType);
+}
 
 var app = builder.Build();
 
@@ -102,6 +147,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowDashboard");
+
+foreach (var moduleType in middlewareTypes)
+{
+    app.UseMiddleware(moduleType);
+}
 
 app.UseAuthorization();
 

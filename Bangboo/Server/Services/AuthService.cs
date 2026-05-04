@@ -1,18 +1,42 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Bangboo.Data;
+using Bangboo.Models;
+using Bangboo.Modules.Services;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Bangboo.Server.Services;
 
-public class AuthService
+public class AuthService : ServerServicesModule
 {
-    private readonly Env _env;
-
-    public AuthService(IOptions<Env> ptions)
+    public AuthService(IHost host, AppDbContext dbContext, IOptions<Env> options) : base(host, dbContext, options)
     {
-        _env = ptions.Value;
+    }
+
+    public async Task<(bool result, SessionsModel? sessionModel)> ValidateSession(HttpRequest request)
+    {
+        var sessionId = 0UL;
+        if (!ulong.TryParse(request.Cookies["SessionId"] ?? "0", out ulong result))
+        {
+            return (false, null);
+        }
+        sessionId = result;
+        
+        var session = await _dbContext.Sessions.Where(s => s.Id == sessionId).FirstOrDefaultAsync();
+        if (session is null) return (false, null);
+        
+        //var now = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+        //if (session.ExpiresIn <= now) return (false, null);
+        
+        var headers = request.Headers;
+        var userAgent = headers.UserAgent.ToString();
+        var language = headers.AcceptLanguage.ToString();
+        if (session.UserAgent != userAgent || session.Language != language) return (false, null);
+        
+        return (true, session);
     }
 
     public Task<HttpResponseMessage> Authorize()

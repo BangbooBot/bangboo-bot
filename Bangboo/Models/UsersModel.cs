@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Bangboo.Models.GuildSchema;
+
+namespace Bangboo.Models;
 
 [Table("users")]
 public class UsersModel
@@ -10,24 +13,15 @@ public class UsersModel
     public ulong Id { get; set; }
     
     [Required]
-    [Column("access_token")]
-    public required string AccessToken { get; set; }
+    [Column("username")]
+    public required string Username { get; set; }
+    
+    [Column("avatar")]
+    public string? Avatar { get; set; }
 
-    [Required]
-    [Column("refresh_token")]
-    public required string RefreshToken { get; set; }
-
-    [Required]
-    [Column("token_type")]
-    public required string TokenType { get; set; }
-
-    [Required]
-    [Column("expires_in")]
-    public DateOnly ExpiresIn { get; set; }
-
-    [Required]
-    [Column("scope")]
-    public required string Scope { get; set; }
-
-    public ICollection<SessionsModel> Sessions { get; set; } = new List<SessionsModel>();    
+    public AuthsModel AuthModel { get; set; } = null;
+    
+    public ICollection<GuildsModel> GuildsModel { get; set; } = new List<GuildsModel>();
+    
+    public ICollection<MembersModel> MembersModel { get; set; } = new List<MembersModel>();
 }

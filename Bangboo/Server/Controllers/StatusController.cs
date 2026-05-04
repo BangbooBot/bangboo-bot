@@ -9,12 +9,12 @@ namespace Bangboo.Server.Controllers;
 public class Status : ControllerBase
 {
     private readonly DatabaseService _databaseService;
-    private readonly DiscordService _discordService;
+    private readonly StatusService _statusService;
     
-    public Status(DatabaseService databaseService, DiscordService discordService)
+    public Status(DatabaseService databaseService, StatusService statusService)
     {
         _databaseService = databaseService;
-        _discordService = discordService;
+        _statusService = statusService;
     }
 
     /// <summary>
@@ -34,8 +34,8 @@ public class Status : ControllerBase
             .Count(method => method.GetCustomAttribute<SlashCommandAttribute>() is not null);
          */
         var res = new StatusReponse(
-            _discordService.Gateway?.Cache.Guilds.Count ?? 0, 
-            _discordService.SlashCommands.Count
+            _statusService.Gateway?.Cache.Guilds.Count ?? 0, 
+            _statusService.SlashCommands.Count
         );
         return Ok(res);
     }
@@ -52,7 +52,7 @@ public class Status : ControllerBase
     [ResponseCache(Duration = 30, Location = ResponseCacheLocation.None, NoStore = true)]
     public async IAsyncEnumerable<CommandReponse> GetCommands()
     {
-        foreach (var command in _discordService.SlashCommands)
+        foreach (var command in _statusService.SlashCommands)
         {
             yield return new CommandReponse
             {

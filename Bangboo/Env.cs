@@ -18,3 +18,4 @@ public class Env
     [Required, MinLength(1)]
     public string RedisConnection { get; set; }
 }
+

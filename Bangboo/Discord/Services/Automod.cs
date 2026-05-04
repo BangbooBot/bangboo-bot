@@ -1,34 +1,47 @@
-using NetCord;
+using Bangboo.Data;
+using Bangboo.Modules.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using NetCord.Gateway;
 using NetCord.Rest;
 
-namespace Bangboo.Utils.Tools;
+namespace Bangboo.Discord.Services;
 
-public class AutomodService
+public class AutomodService : DiscordServiceModule
 {
-    public Task<bool> Mousetrap(Message message)
+    public AutomodService(AppDbContext dbContext, IOptions<Env> options) : base(dbContext, options)
     {
-        var guild = message.Guild;
-        if (guild == null) return Task.FromResult(false);
-        
-        if (message.ChannelId != 1267667878094835796)
-        {
-            return Task.FromResult(false);
-        }
-        
-        var member = message.Author as GuildUser;
-        if (member == null) return Task.FromResult(false);
-        
-        /*
-        var hasMoreThanThreeDays = DateTimeOffset.UtcNow - member.JoinedAt > TimeSpan.FromDays(3);
+    }
 
+    public async Task<bool> Mousetrap(Message message)
+    {
+        var dbCtx = dbContext;
+        
+        var gid = message.GuildId;
+        var mousetrap = await dbCtx.MousetrapsModel.Where(m => m.FkGuildId == gid).FirstOrDefaultAsync();
+        if (mousetrap is null) return false;
+        var shouldBan = mousetrap.ShouldBan;
+        
+        if (message.ChannelId != mousetrap.ChannelId)
+        {
+            return false;
+        }
+
+        var guild = message.Guild;
         var user = message.Author;
-        if (user.IsBot) return Task.FromResult(false);
         
         var requestProps = new RestRequestProperties();
-        requestProps.AuditLogReason = "Captured by mousetrap.";
-        guild.BanUserAsync(user.Id, 60 * 60 * 24 * 7, requestProps);
-        */
-        return Task.FromResult(true);
+        requestProps.AuditLogReason = "Free from mousetrap.";
+        await guild.BanUserAsync(user.Id, 60 * 60 * 24 * 7, requestProps);
+        if (!shouldBan)
+            await guild.UnbanUserAsync(user.Id, requestProps);
+
+        if (mousetrap.MessageDm is not null)
+        { 
+            var dm = await user.GetDMChannelAsync();
+            await dm.SendMessageAsync(mousetrap.MessageDm);
+        }
+        
+        return true;
     }
 }
