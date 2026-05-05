@@ -120,6 +120,8 @@ public class AuthController : ControllerBase
             userModel.Avatar = user.AvatarHash;
         }
         
+        await dbCtx.SaveChangesAsync();
+        
         var authModel = await dbCtx.Auths.Where(a => a.FkUserId == user.Id).FirstOrDefaultAsync();
         if (authModel is null)
         {
@@ -128,6 +130,7 @@ public class AuthController : ControllerBase
                 AccessToken = tokenExchangeData.AccessToken,
                 RefreshToken = tokenExchangeData.RefreshToken,
                 TokenType = tokenExchangeData.TokenType,
+                ExpiresIn = expiresIn,
                 Scope = tokenExchangeData.Scope,
                 FkUserId = user.Id
             };
@@ -139,9 +142,12 @@ public class AuthController : ControllerBase
             authModel.AccessToken = tokenExchangeData.AccessToken;
             authModel.RefreshToken = tokenExchangeData.RefreshToken;
             authModel.TokenType = tokenExchangeData.TokenType;
+            authModel.ExpiresIn = expiresIn;
             authModel.Scope = tokenExchangeData.Scope;
             authModel.FkUserId = user.Id;
         }
+        
+        await dbCtx.SaveChangesAsync();
         
         var headers = HttpContext.Request.Headers;
         var userAgent = headers.UserAgent.ToString();

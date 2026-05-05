@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Bangboo.Models.GuildSchema.EventSchema;
+namespace Bangboo.Models;
 
 [Table("member_events")]
 public class MemberEventsModel
@@ -10,7 +10,7 @@ public class MemberEventsModel
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
-    public ulong Id { get; set; }
+    public long Id { get; set; }
 
     [Column("on_join")]
     [DefaultValue(false)]

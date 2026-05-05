@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Bangboo.Models.GuildSchema;
 
 namespace Bangboo.Models;
 
@@ -19,7 +18,7 @@ public class UsersModel
     [Column("avatar")]
     public string? Avatar { get; set; }
 
-    public AuthsModel AuthModel { get; set; } = null;
+    public AuthsModel? AuthModel { get; set; } = null;
     
     public ICollection<GuildsModel> GuildsModel { get; set; } = new List<GuildsModel>();
     

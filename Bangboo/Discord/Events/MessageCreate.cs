@@ -6,7 +6,7 @@ namespace Bangboo.Discord.Events;
 
 public class MessageCreateHandler(ILogger<MessageCreateHandler> logger) : IMessageCreateGatewayHandler
 {
-    private readonly AutomodService _automodService;
+    //private readonly AutomodService _automodService = automodService;
     
     public async ValueTask HandleAsync(Message arg)
     {
@@ -14,8 +14,8 @@ public class MessageCreateHandler(ILogger<MessageCreateHandler> logger) : IMessa
         if (arg.GuildId is null) return;
         
         // Mousetrap check
-        if (await _automodService.Mousetrap(arg))
-            return;
+        //if (await _automodService.Mousetrap(arg))
+            //return;
 /*
         var dbCtx = _automodService.dbContext;
         var gid = arg.Guild.Id;

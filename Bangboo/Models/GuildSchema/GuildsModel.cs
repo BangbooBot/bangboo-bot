@@ -1,10 +1,8 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Bangboo.Models.GuildSchema.EventSchema;
-using Bangboo.Models.GuildSchema.ModerationSchema;
 
-namespace Bangboo.Models.GuildSchema;
+namespace Bangboo.Models;
 
 [Table("guilds")]
 public class GuildsModel
@@ -34,11 +32,11 @@ public class GuildsModel
     [Column("fk_owner")]
     public ulong FkOwnerId { get; set; }
 
-    public UsersModel UsersModel { get; set; } = null;
+    public UsersModel? UsersModel { get; set; } = null;
     
     public ICollection<MembersModel> MembersModel { get; set; } = new List<MembersModel>();
     
-    public MemberEventsModel MemberEventModel { get; set; } = null;
+    public MemberEventsModel? MemberEventModel { get; set; } = null;
     
-    public MousetrapsModel MousetrapsModel { get; set; } = null;
+    public MousetrapsModel? MousetrapsModel { get; set; } = null;
 }

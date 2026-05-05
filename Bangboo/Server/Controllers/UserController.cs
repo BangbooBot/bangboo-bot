@@ -87,13 +87,13 @@ public class UserController : ControllerBase
 
         var dbCtx = _databaseService.GetDbContext();
         
-        var authToken = await dbCtx.Auths.Where(a => a.Id == session.FkAuthId).GroupBy(a => a.AccessToken).FirstOrDefaultAsync();
+        var authToken = await dbCtx.Auths.Where(a => a.Id == session.FkAuthId).FirstOrDefaultAsync();
         if (authToken is null)
         {
             return NotFound();
         }
 
-        var token = authToken.Key;
+        var token = authToken.AccessToken;
         var guildsRes = await _userService.GetUserGuilds(token);
         if (!guildsRes.IsSuccessStatusCode)
         {

@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Bangboo.Models.GuildSchema.ModerationSchema;
+namespace Bangboo.Models;
 
 [Table("mousetraps")]
 public class MousetrapsModel
@@ -10,7 +10,7 @@ public class MousetrapsModel
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
-    public ulong Id { get; set; }
+    public long Id { get; set; }
     
     [Column("channel_id")]
     [Required]

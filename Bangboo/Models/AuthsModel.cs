@@ -9,7 +9,7 @@ public class AuthsModel
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
-    public ulong Id { get; set; }
+    public long Id { get; set; }
     
     [Required]
     [Column("access_token")]

@@ -1,7 +1,5 @@
 using Bangboo.Models;
-using Bangboo.Models.GuildSchema;
-using Bangboo.Models.GuildSchema.EventSchema;
-using Bangboo.Models.GuildSchema.ModerationSchema;
+using Bangboo.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bangboo.Data;
@@ -44,30 +42,52 @@ public class AppDbContext : DbContext
             .HasColumnType("e_horario_type[]");
         */
 
+        // Auths
+        modelBuilder.Entity<AuthsModel>()
+            .Property(e => e.Id)
+            .UseIdentityByDefaultColumn();
+            
         modelBuilder.Entity<AuthsModel>()
             .HasOne(r => r.UserModel)
             .WithOne(e => e.AuthModel)
             .HasForeignKey<AuthsModel>(r => r.FkUserId);
         
+        // Sessions
         modelBuilder.Entity<SessionsModel>()
             .HasOne(r => r.AuthModel)
             .WithMany(e => e.SessionsModel)
             .HasForeignKey(r => r.FkAuthId);
         
+        // Guilds
         modelBuilder.Entity<GuildsModel>()
             .HasOne(r => r.UsersModel)
             .WithMany(e => e.GuildsModel)
             .HasForeignKey(r => r.FkOwnerId);
+        
+        // Members
+        modelBuilder.Entity<MembersModel>()
+            .Property(e => e.Id)
+            .UseIdentityByDefaultColumn();
         
         modelBuilder.Entity<MembersModel>()
             .HasOne(r => r.UserModel)
             .WithMany(e => e.MembersModel)
             .HasForeignKey(r => r.FkUserId);
         
+        // Members Events
+        modelBuilder.Entity<MemberEventsModel>()
+            .Property(e => e.Id)
+            .UseIdentityByDefaultColumn();
+        
         modelBuilder.Entity<MemberEventsModel>()
             .HasOne(r => r.GuildModel)
             .WithOne(e => e.MemberEventModel)
             .HasForeignKey<MemberEventsModel>(r => r.FkGuildId);
+        
+        // Mousetraps
+        modelBuilder.Entity<MousetrapsModel>()
+            .Property(e => e.Id)
+            .UseIdentityByDefaultColumn();
         
         modelBuilder.Entity<MousetrapsModel>()
             .HasOne(r => r.GuildModel)

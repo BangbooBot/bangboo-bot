@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Bangboo.Models.GuildSchema;
+namespace Bangboo.Models;
 
 [Table("members")]
 public class MembersModel
@@ -10,7 +10,7 @@ public class MembersModel
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
-    public ulong Id { get; set; }
+    public long Id { get; set; }
 
     [Column("xp")]
     [DefaultValue(0)]

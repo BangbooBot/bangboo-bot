@@ -21,7 +21,7 @@ public class SessionsModel
 
     [Required]
     [Column("fk_auth_id")]
-    public ulong FkAuthId;
+    public long FkAuthId;
 
     public AuthsModel AuthModel { get; set; } = null!;
 }
