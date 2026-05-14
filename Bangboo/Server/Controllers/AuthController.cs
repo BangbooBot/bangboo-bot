@@ -218,6 +218,6 @@ public class AuthController : ControllerBase
 
         await dbCtx.SaveChangesAsync();
 
-        return Ok();
+        return NoContent();
     }
 }
