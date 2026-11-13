@@ -1,0 +1,463 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Bangboo API",
+    "description": "API do dashboard do Bangboo. Erros sempre retornam `{ status, message }`. A autenticação é feita por cookie (`bangboo.auth`) criado em `GET /api/auth/login`.",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/auth/login": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Inicia o login com Discord.",
+        "description": "Redireciona para o OAuth do Discord. Após o login, o cookie `bangboo.auth` é criado e o\r\nnavegador volta para returnUrl (apenas caminhos relativos; padrão `/dashboard`).\r\nAbra esta URL como navegação de página, não via fetch.",
+        "parameters": [
+          {
+            "name": "returnUrl",
+            "in": "query",
+            "description": "Caminho do dashboard para voltar após o login.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Found"
+          }
+        },
+        "security": [ ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Encerra a sessão.",
+        "description": "Remove o cookie de autenticação. Idempotente: responde 204 mesmo sem sessão.",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "security": [ ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Usuário logado.",
+        "description": "Retorna o perfil do usuário da sessão atual, ou 401 se não houver sessão.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guilds": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "summary": "Guilds gerenciáveis.",
+        "description": "Guilds em que o usuário é dono, Administrator ou tem Manage Server.\r\n`isBotMember` indica se o bot já está na guild.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guilds/{guildId}": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "summary": "Detalhes de uma guild.",
+        "description": "Exige permissão de gerenciar a guild.",
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "description": "ID da guild no Discord.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/status": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Status do bot.",
+        "description": "Online/offline (pelo heartbeat do bot), servidores, latência e quantidade de comandos.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "security": [ ]
+      }
+    },
+    "/api/status/commands": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Slash commands do bot.",
+        "description": "Lista de comandos registrados no Discord, em ordem alfabética.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommandResponse"
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "security": [ ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "required": [
+          "status",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "Código HTTP (repetido no corpo para facilitar o consumo no front).",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensagem legível, segura para exibir ao usuário."
+          }
+        },
+        "description": "Corpo padrão de TODA resposta de erro da API."
+      },
+      "CommandResponse": {
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "description": "Slash command do bot."
+      },
+      "GuildResponse": {
+        "required": [
+          "id",
+          "name",
+          "iconUrl",
+          "bannerUrl",
+          "isOwner",
+          "isBotMember",
+          "approximateMemberCount",
+          "approximatePresenceCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do Discord (string)."
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome da guild."
+          },
+          "iconUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "URL do ícone, se houver."
+          },
+          "bannerUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "URL do banner, se houver."
+          },
+          "isOwner": {
+            "type": "boolean",
+            "description": "O usuário é o dono da guild."
+          },
+          "isBotMember": {
+            "type": "boolean",
+            "description": "O bot já está na guild (se não, o dashboard oferece o convite)."
+          },
+          "approximateMemberCount": {
+            "type": "integer",
+            "description": "Total aproximado de membros.",
+            "format": "int32"
+          },
+          "approximatePresenceCount": {
+            "type": "integer",
+            "description": "Total aproximado de membros online.",
+            "format": "int32"
+          }
+        },
+        "description": "Guild que o usuário pode gerenciar."
+      },
+      "StatusResponse": {
+        "required": [
+          "online",
+          "guildCount",
+          "latencyMs",
+          "commandCount",
+          "startedAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "online": {
+            "type": "boolean",
+            "description": "O bot enviou heartbeat recentemente."
+          },
+          "guildCount": {
+            "type": "integer",
+            "description": "Quantidade de servidores em que o bot está.",
+            "format": "int32"
+          },
+          "latencyMs": {
+            "type": "integer",
+            "description": "Latência do gateway no último heartbeat.",
+            "format": "int32"
+          },
+          "commandCount": {
+            "type": "integer",
+            "description": "Quantidade de slash commands registrados.",
+            "format": "int32"
+          },
+          "startedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Quando o processo do bot iniciou (null se nunca reportou).",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Último heartbeat (null se nunca reportou).",
+            "format": "date-time"
+          }
+        },
+        "description": "Estado atual do bot."
+      },
+      "UserResponse": {
+        "required": [
+          "id",
+          "username",
+          "globalName",
+          "avatarUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do Discord (string: snowflakes não cabem em number do JS)."
+          },
+          "username": {
+            "type": "string",
+            "description": "Username único do Discord."
+          },
+          "globalName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Nome de exibição, se definido."
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "URL do avatar (ou o avatar padrão do Discord)."
+          }
+        },
+        "description": "Usuário logado no dashboard."
+      }
+    },
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "description": "Cookie de sessão criado após o login com Discord.",
+        "name": "bangboo.auth",
+        "in": "cookie"
+      }
+    }
+  },
+  "security": [
+    {
+      "cookie": [ ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Guilds"
+    },
+    {
+      "name": "Status"
+    }
+  ]
+}

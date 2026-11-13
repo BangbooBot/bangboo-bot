@@ -1,0 +1,48 @@
+# Infra de desenvolvimento: PostgreSQL + pgAdmin.
+#   docker compose up -d
+#   pgAdmin: http://localhost:5050 (sem login; o servidor "Bangboo" já vem cadastrado)
+# Credenciais só para dev. Sobrescreva com variáveis de ambiente ou um .env ao lado deste arquivo.
+name: bangboo
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: bangboo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bangboo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bangboo}
+      POSTGRES_DB: ${POSTGRES_DB:-bangboo}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # Postgres 18+ guarda os dados em /var/lib/postgresql/<versão>/
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: bangboo-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-bangboo}
+      # Modo desktop: sem tela de login (apenas para dev local).
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  pgadmin-data:

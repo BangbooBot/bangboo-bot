@@ -1,0 +1,23 @@
+{
+  "ConnectionStrings": {
+    "DbConnection": "Host=localhost;Port=5432;Database=bangboo;Username=bangboo;Password=bangboo"
+  },
+  "Discord": {
+    "ClientId": "",
+    "ClientSecret": "",
+    "BotToken": ""
+  },
+  "Database": {
+    "MigrateOnStartup": true
+  },
+  "Docs": {
+    "Enabled": false
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <!-- Namespaces existentes começam com "Bot." -->
+        <RootNamespace>Bot</RootNamespace>
+        <UserSecretsId>bangboo-bot</UserSecretsId>
+        <InvariantGlobalization>false</InvariantGlobalization>
+        <PlatformTarget>x64</PlatformTarget>
+        <IsLinuxRuntime Condition="'$(RuntimeIdentifier)' != ''">$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('linux-'))</IsLinuxRuntime>
+        <IsLinuxRuntime Condition="'$(RuntimeIdentifier)' == ''">$([MSBuild]::IsOSPlatform('Linux'))</IsLinuxRuntime>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="Assets\**\*">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Data\**\*.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="../Bangboo.Core/Bangboo.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Hosting" />
+      <PackageReference Include="Microsoft.Extensions.Http" />
+      <PackageReference Include="NetCord" />
+      <PackageReference Include="NetCord.Hosting" />
+      <PackageReference Include="NetCord.Hosting.Services" />
+      <PackageReference Include="NetCord.Services" />
+      <PackageReference Include="Newtonsoft.Json" />
+      <PackageReference Include="SkiaSharp" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(IsLinuxRuntime)' == 'true'">
+      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <InternalsVisibleTo Include="Bangboo.Bot.Tests" />
+    </ItemGroup>
+
+</Project>

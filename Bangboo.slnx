@@ -1,4 +1,11 @@
 <Solution>
-  <Project Path="Bangboo/Bangboo.csproj" />
-  <Project Path="Bot/Bot.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Bangboo.Core/Bangboo.Core.csproj" />
+    <Project Path="src/Bangboo.Api/Bangboo.Api.csproj" />
+    <Project Path="src/Bangboo.Bot/Bangboo.Bot.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Bangboo.Api.Tests/Bangboo.Api.Tests.csproj" />
+    <Project Path="tests/Bangboo.Bot.Tests/Bangboo.Bot.Tests.csproj" />
+  </Folder>
 </Solution>

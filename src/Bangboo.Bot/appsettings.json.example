@@ -1,0 +1,16 @@
+{
+    "ConnectionStrings": {
+        "DbConnection": "Host=localhost;Port=5432;Database=bangboo;Username=bangboo;Password=bangboo"
+    },
+    "Discord": {
+        "Token": ""
+    },
+    "Logging": {
+        "LogLevel": {
+            "Default": "Debug",
+            "System": "Information",
+            "Microsoft": "Information",
+            "Microsoft.EntityFrameworkCore": "Warning"
+        }
+    }
+}
