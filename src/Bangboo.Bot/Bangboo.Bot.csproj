@@ -21,6 +21,10 @@
       <None Update="Data\**\*.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <!-- Traduções dos slash commands (CommandLocalizations) -->
+      <None Update="Localizations\**\*.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>

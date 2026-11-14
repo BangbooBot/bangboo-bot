@@ -149,11 +149,19 @@ Pacotes: `AspNet.Security.OAuth.Discord` (aspnet-contrib) + Cookie authenticatio
 ## 6. Bot (`Bangboo.Bot`)
 
 - Handlers (comandos, eventos, interações) são finos e delegam para services em `Services/`, com a mesma regra de interface + DI explícita.
-- A configuração por guild vem do banco via `Bangboo.Core`, não de JSON.
+- A configuração por guild vem do banco via `Bangboo.Core`, não de JSON. Ela é salva pelo dashboard (API) e lida pelo bot com cache curto (ex.: `Services/Mousetrap/MousetrapSettingsProvider`, 30 s), sem consultar o banco a cada mensagem.
+- **Mousetrap**: `AutomodService` + regra pura em `MousetrapPolicy` (testada). `kick` = ban + unban na hora (apaga 7 dias de mensagens); `byTenure` expulsa quem está há `MinTenureDays` ou mais e bane os mais novos; a DM vai **antes** da punição; o dono nunca é punido.
 - `Services/BotStatus/BotStatusHeartbeat` (BackgroundService) grava latência, início e guild count via `IBotStatusWriter` a cada 30 s. A API considera o bot offline sem heartbeat por 90 s.
 - Serviços singleton/background usam `IDbContextFactory<AppDbContext>`, nunca um `AppDbContext` injetado.
 - O bot **não expõe HTTP**. Se precisar receber sinal do site (ex.: "recarregar config"), use `LISTEN/NOTIFY` do Postgres.
 - Erros de comando passam pelo handler central de resultado (`ErrorCommandResultHandler`) e respondem com embed padronizado, nunca com stack trace.
+- **Traduções dos slash commands**:
+  - Os textos padrão (em inglês) ficam nos atributos: `[SlashCommand("nome", "Descrição")]` e `[SlashCommandParameter(Name = "...", Description = "...")]`. Todo parâmetro tem `Description`.
+  - As traduções ficam em `Localizations/<locale>.json` (hoje `pt-BR.json`), lidas pelo `JsonLocalizationsProvider` do NetCord (`Services/Localization/CommandLocalizations.cs`).
+  - Formato: `commands.<comando>.description`, `commands.<comando>.parameters.<parâmetro>.description` e, para escolhas de enum, `enums.<NomeDoEnum>.<Campo>`.
+  - Nomes de comandos e parâmetros **não** são traduzidos (`/profile` é igual em qualquer idioma). Traduzimos só descrições e escolhas.
+  - Comando novo = descrição em `pt-BR.json` no mesmo PR. O teste `CommandLocalizationsTests.EverySlashCommand_HasPortugueseDescription` falha se faltar.
+  - As traduções chegam ao Discord quando o bot sobe (registro dos comandos), e o dashboard as exibe via `GET api/status/commands?locale=pt-BR`.
 
 ## 7. Documentação da API (OpenAPI, Scalar, Swagger)
 

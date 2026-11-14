@@ -17,7 +17,7 @@ namespace Bangboo.Core.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.14")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -195,24 +195,42 @@ namespace Bangboo.Core.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<decimal>("ChannelId")
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasDefaultValue("Ban")
+                        .HasColumnName("action");
+
+                    b.Property<decimal?>("ChannelId")
                         .HasColumnType("numeric(20,0)")
                         .HasColumnName("channel_id");
+
+                    b.Property<string>("DmMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("message_dm");
+
+                    b.Property<bool>("Enabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("enabled");
 
                     b.Property<decimal>("GuildId")
                         .HasColumnType("numeric(20,0)")
                         .HasColumnName("fk_guild_id");
 
-                    b.Property<string>("MessageDm")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("message_dm");
+                    b.Property<int?>("MinTenureDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("min_tenure_days");
 
-                    b.Property<bool>("ShouldBan")
+                    b.Property<bool>("SendDm")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
-                        .HasColumnName("should_ban");
+                        .HasColumnName("send_dm");
 
                     b.HasKey("Id");
 

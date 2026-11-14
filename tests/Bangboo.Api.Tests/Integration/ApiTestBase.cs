@@ -21,6 +21,12 @@ public abstract class ApiTestBase(BangbooApiFactory factory) : IAsyncLifetime
 
     protected static CancellationToken Ct => TestContext.Current.CancellationToken;
 
+    /// <summary>Mesmo JSON da API: camelCase e enums como texto (<c>"byTenure"</c>).</summary>
+    protected static readonly JsonSerializerOptions Json = new(JsonSerializerOptions.Web)
+    {
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+    };
+
     public async ValueTask InitializeAsync() => await Factory.ResetAsync();
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;

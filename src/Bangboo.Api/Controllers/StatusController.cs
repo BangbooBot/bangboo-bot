@@ -22,10 +22,18 @@ public sealed class StatusController(IStatusService status) : ControllerBase
         Ok(await status.GetStatusAsync(ct));
 
     /// <summary>Slash commands do bot.</summary>
-    /// <remarks>Lista de comandos registrados no Discord, em ordem alfabética.</remarks>
+    /// <remarks>
+    /// Comandos registrados no Discord, em ordem alfabética, com parâmetros, escolhas e se são só
+    /// para servidores. Com <paramref name="locale"/> (ex.: <c>pt-BR</c>), as descrições vêm traduzidas
+    /// quando o bot registrou a tradução; senão, em inglês.
+    /// </remarks>
+    /// <param name="locale">Idioma das descrições (ex.: <c>en</c>, <c>pt-BR</c>).</param>
+    /// <param name="ct">Token de cancelamento.</param>
     [HttpGet("commands")]
     [ProducesResponseType<IReadOnlyList<CommandResponse>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiError>(StatusCodes.Status502BadGateway)]
-    public async Task<ActionResult<IReadOnlyList<CommandResponse>>> Commands(CancellationToken ct) =>
-        Ok(await status.GetCommandsAsync(ct));
+    public async Task<ActionResult<IReadOnlyList<CommandResponse>>> Commands(
+        [FromQuery] string? locale,
+        CancellationToken ct) =>
+        Ok(await status.GetCommandsAsync(locale, ct));
 }

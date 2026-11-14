@@ -12,9 +12,16 @@ public sealed class MousetrapConfiguration : IEntityTypeConfiguration<Mousetrap>
         builder.HasKey(m => m.Id);
 
         builder.Property(m => m.Id).HasColumnName("id").UseIdentityByDefaultColumn();
+        builder.Property(m => m.Enabled).HasColumnName("enabled").HasDefaultValue(false);
         builder.Property(m => m.ChannelId).HasColumnName("channel_id");
-        builder.Property(m => m.ShouldBan).HasColumnName("should_ban").HasDefaultValue(false);
-        builder.Property(m => m.MessageDm).HasColumnName("message_dm").HasMaxLength(2000);
+        builder.Property(m => m.Action)
+            .HasColumnName("action")
+            .HasConversion<string>()
+            .HasMaxLength(16)
+            .HasDefaultValue(MousetrapAction.Ban);
+        builder.Property(m => m.MinTenureDays).HasColumnName("min_tenure_days");
+        builder.Property(m => m.SendDm).HasColumnName("send_dm").HasDefaultValue(false);
+        builder.Property(m => m.DmMessage).HasColumnName("message_dm").HasMaxLength(Mousetrap.MaxDmMessageLength);
         builder.Property(m => m.GuildId).HasColumnName("fk_guild_id");
 
         builder.HasOne(m => m.Guild)

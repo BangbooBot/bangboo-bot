@@ -13,6 +13,7 @@ public sealed class CachedDiscordApiClient(IDiscordApiClient inner, IMemoryCache
     private static readonly TimeSpan UserGuildsTtl = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan BotGuildsTtl = TimeSpan.FromSeconds(60);
     private static readonly TimeSpan CommandsTtl = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan GuildTtl = TimeSpan.FromSeconds(30);
 
     public Task<IReadOnlyList<DiscordPartialGuild>> GetUserGuildsAsync(string userAccessToken, CancellationToken ct) =>
         GetOrCreateAsync($"discord:user-guilds:{Hash(userAccessToken)}", UserGuildsTtl,
@@ -23,6 +24,12 @@ public sealed class CachedDiscordApiClient(IDiscordApiClient inner, IMemoryCache
 
     public Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync(CancellationToken ct) =>
         GetOrCreateAsync("discord:commands", CommandsTtl, () => inner.GetApplicationCommandsAsync(ct));
+
+    public Task<DiscordGuild> GetGuildAsync(string guildId, CancellationToken ct) =>
+        GetOrCreateAsync($"discord:guild:{guildId}", GuildTtl, () => inner.GetGuildAsync(guildId, ct));
+
+    public Task<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(string guildId, CancellationToken ct) =>
+        GetOrCreateAsync($"discord:guild-channels:{guildId}", GuildTtl, () => inner.GetGuildChannelsAsync(guildId, ct));
 
     private async Task<T> GetOrCreateAsync<T>(string key, TimeSpan ttl, Func<Task<T>> factory)
     {

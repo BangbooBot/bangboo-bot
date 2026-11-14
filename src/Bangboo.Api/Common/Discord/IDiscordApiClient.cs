@@ -9,6 +9,12 @@ public interface IDiscordApiClient
     /// <summary>IDs das guilds em que o bot está.</summary>
     Task<IReadOnlySet<string>> GetBotGuildIdsAsync(CancellationToken ct);
 
+    /// <summary>Guild vista pelo bot (com contagens). <c>NotFoundException</c> se o bot não estiver nela.</summary>
+    Task<DiscordGuild> GetGuildAsync(string guildId, CancellationToken ct);
+
+    /// <summary>Canais da guild vistos pelo bot. <c>NotFoundException</c> se o bot não estiver nela.</summary>
+    Task<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(string guildId, CancellationToken ct);
+
     /// <summary>Comandos globais registrados pela aplicação.</summary>
     Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync(CancellationToken ct);
 }

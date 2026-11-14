@@ -64,6 +64,30 @@ public sealed class StatusEndpointsTests(BangbooApiFactory factory) : ApiTestBas
         Assert.Equal(["fab", "profile"], commands.Select(c => c.Name));
     }
 
+    [Fact]
+    public async Task Commands_WithLocale_ReturnsTranslatedDetails()
+    {
+        Factory.Discord.GetApplicationCommandsAsync(Arg.Any<CancellationToken>()).Returns(
+        [
+            new DiscordApplicationCommand(
+                "1", "profile", "Shows a profile", Type: 1,
+                DescriptionLocalizations: new Dictionary<string, string> { ["pt-BR"] = "Mostra um perfil" },
+                Contexts: [0],
+                Options: [new DiscordCommandOption(6, "user", "Selected user")]),
+        ]);
+
+        var commands = await Factory.CreateClientAs(null)
+            .GetFromJsonAsync<List<CommandResponse>>("/api/status/commands?locale=pt-BR", Ct);
+
+        var command = Assert.Single(commands!);
+        Assert.Equal("Mostra um perfil", command.Description);
+        Assert.True(command.GuildOnly);
+        var option = Assert.Single(command.Options);
+        Assert.Equal("user", option.Type);
+        Assert.False(option.Required);
+        Assert.Equal("Selected user", option.Description); // sem tradução: padrão
+    }
+
     private void GivenCommands(params string[] names) =>
         Factory.Discord.GetApplicationCommandsAsync(Arg.Any<CancellationToken>())
             .Returns(names.Select((name, i) => new DiscordApplicationCommand($"{i}", name, name, Type: 1)).ToList());

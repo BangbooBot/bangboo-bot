@@ -193,6 +193,326 @@
         }
       }
     },
+    "/api/guilds/{guildId}/overview": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "summary": "Visão geral do servidor.",
+        "description": "Membros, online, canais, cargos, impulsos e configurações do Bangboo. Exige permissão de\ngerenciar a guild; 404 se o bot não estiver no servidor.",
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "description": "ID da guild no Discord.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuildOverviewResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guilds/{guildId}/channels": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "summary": "Canais de texto do servidor.",
+        "description": "Canais de texto e anúncios, na ordem do Discord (para seletores). 404 se o bot não estiver no servidor.",
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "description": "ID da guild no Discord.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildChannelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guilds/{guildId}/mousetrap": {
+      "get": {
+        "tags": [
+          "Mousetrap"
+        ],
+        "summary": "Configuração do mousetrap.",
+        "description": "Canal-armadilha: quem enviar mensagem nele é punido (pega contas hackeadas que mandam spam).\nSe nunca foi configurado, retorna o padrão (desativado).",
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "description": "ID da guild no Discord.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MousetrapResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Mousetrap"
+        ],
+        "summary": "Salva a configuração do mousetrap.",
+        "description": "Regras: ativar exige um canal de texto do servidor; `byTenure` exige `minTenureDays`;\n`sendDm` exige `dmMessage`. O bot aplica a nova configuração em até 30 s.",
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "description": "ID da guild no Discord.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Token de cancelamento.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMousetrapRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMousetrapRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMousetrapRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MousetrapResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/status": {
       "get": {
         "tags": [
@@ -231,7 +551,17 @@
           "Status"
         ],
         "summary": "Slash commands do bot.",
-        "description": "Lista de comandos registrados no Discord, em ordem alfabética.",
+        "description": "Comandos registrados no Discord, em ordem alfabética, com parâmetros, escolhas e se são só\npara servidores. Com locale (ex.: `pt-BR`), as descrições vêm traduzidas\nquando o bot registrou a tradução; senão, em inglês.",
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "Idioma das descrições (ex.: `en`, `pt-BR`).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -282,21 +612,220 @@
         },
         "description": "Corpo padrão de TODA resposta de erro da API."
       },
-      "CommandResponse": {
+      "CommandOptionResponse": {
         "required": [
           "name",
-          "description"
+          "description",
+          "type",
+          "required",
+          "choices",
+          "options"
         ],
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Nome do parâmetro."
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Descrição no idioma pedido, ou a padrão."
+          },
+          "type": {
+            "type": "string",
+            "description": "Tipo: subcommand, subcommand-group, string, integer, boolean, user, channel, role, mentionable, number, attachment."
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Obrigatório ao usar o comando."
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Valores fixos aceitos (vazio = livre)."
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommandOptionResponse"
+            },
+            "description": "Parâmetros do subcomando (vazio para parâmetros comuns)."
+          }
+        },
+        "description": "Parâmetro (ou subcomando) de um slash command."
+      },
+      "CommandResponse": {
+        "required": [
+          "name",
+          "description",
+          "guildOnly",
+          "options"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nome do comando (sem a barra)."
+          },
+          "description": {
+            "type": "string",
+            "description": "Descrição no idioma pedido, ou a padrão (inglês) se não houver tradução."
+          },
+          "guildOnly": {
+            "type": "boolean",
+            "description": "O comando só funciona dentro de servidores (não em DMs)."
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommandOptionResponse"
+            },
+            "description": "Parâmetros e subcomandos, na ordem do Discord."
           }
         },
         "description": "Slash command do bot."
+      },
+      "GuildChannelResponse": {
+        "required": [
+          "id",
+          "name",
+          "category"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do canal."
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome (sem #)."
+          },
+          "category": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Categoria em que está, se houver."
+          }
+        },
+        "description": "Canal de texto da guild (para seletores do dashboard)."
+      },
+      "GuildOverviewResponse": {
+        "required": [
+          "id",
+          "name",
+          "iconUrl",
+          "bannerUrl",
+          "description",
+          "ownerId",
+          "createdAt",
+          "memberCount",
+          "onlineCount",
+          "boostTier",
+          "boostCount",
+          "textChannelCount",
+          "voiceChannelCount",
+          "categoryCount",
+          "roleCount",
+          "preferredLocale",
+          "mousetrap"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID da guild."
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome."
+          },
+          "iconUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Ícone, se houver."
+          },
+          "bannerUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Banner, se houver."
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Descrição pública (servidores da comunidade)."
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "ID do dono."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Data de criação (derivada do ID).",
+            "format": "date-time"
+          },
+          "memberCount": {
+            "type": "integer",
+            "description": "Total aproximado de membros.",
+            "format": "int32"
+          },
+          "onlineCount": {
+            "type": "integer",
+            "description": "Total aproximado de membros online.",
+            "format": "int32"
+          },
+          "boostTier": {
+            "type": "integer",
+            "description": "Nível de impulso (0–3).",
+            "format": "int32"
+          },
+          "boostCount": {
+            "type": "integer",
+            "description": "Quantidade de impulsos.",
+            "format": "int32"
+          },
+          "textChannelCount": {
+            "type": "integer",
+            "description": "Canais de texto e anúncios.",
+            "format": "int32"
+          },
+          "voiceChannelCount": {
+            "type": "integer",
+            "description": "Canais de voz e palco.",
+            "format": "int32"
+          },
+          "categoryCount": {
+            "type": "integer",
+            "description": "Categorias.",
+            "format": "int32"
+          },
+          "roleCount": {
+            "type": "integer",
+            "description": "Cargos (sem contar @everyone).",
+            "format": "int32"
+          },
+          "preferredLocale": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Idioma principal do servidor (ex.: `pt-BR`)."
+          },
+          "mousetrap": {
+            "description": "Configuração atual do mousetrap.",
+            "$ref": "#/components/schemas/MousetrapResponse"
+          }
+        },
+        "description": "Visão geral de um servidor (dados do Discord + configurações do Bangboo)."
       },
       "GuildResponse": {
         "required": [
@@ -354,6 +883,69 @@
         },
         "description": "Guild que o usuário pode gerenciar."
       },
+      "MousetrapAction": {
+        "enum": [
+          "ban",
+          "kick",
+          "byTenure"
+        ]
+      },
+      "MousetrapResponse": {
+        "required": [
+          "enabled",
+          "channelId",
+          "channelName",
+          "action",
+          "minTenureDays",
+          "sendDm",
+          "dmMessage"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "Ativo."
+          },
+          "channelId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Canal vigiado (null se ainda não configurado)."
+          },
+          "channelName": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Nome do canal, se ele ainda existir."
+          },
+          "action": {
+            "description": "Punição: `ban`, `kick` (bane e desbane, apagando as mensagens) ou `byTenure`.",
+            "$ref": "#/components/schemas/MousetrapAction"
+          },
+          "minTenureDays": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Para `byTenure`: dias no servidor a partir dos quais o membro é expulso em vez de banido.",
+            "format": "int32"
+          },
+          "sendDm": {
+            "type": "boolean",
+            "description": "Envia uma mensagem ao usuário antes da punição."
+          },
+          "dmMessage": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Texto da mensagem; aceita `{user}` e `{server}`."
+          }
+        },
+        "description": "Configuração do mousetrap (canal-armadilha) de um servidor."
+      },
       "StatusResponse": {
         "required": [
           "online",
@@ -402,6 +994,49 @@
           }
         },
         "description": "Estado atual do bot."
+      },
+      "UpdateMousetrapRequest": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "Ativo. Exige string? UpdateMousetrapRequest.ChannelId."
+          },
+          "channelId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Canal de texto vigiado."
+          },
+          "action": {
+            "description": "Punição aplicada.",
+            "$ref": "#/components/schemas/MousetrapAction"
+          },
+          "minTenureDays": {
+            "maximum": 365,
+            "minimum": 1,
+            "type": [
+              "null",
+              "integer"
+            ],
+            "description": "Obrigatório para `byTenure`.",
+            "format": "int32"
+          },
+          "sendDm": {
+            "type": "boolean",
+            "description": "Envia string? UpdateMousetrapRequest.DmMessage antes da punição."
+          },
+          "dmMessage": {
+            "maxLength": 1000,
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Obrigatório quando bool UpdateMousetrapRequest.SendDm. Aceita `{user}` e `{server}`."
+          }
+        },
+        "description": "Atualiza a configuração do mousetrap."
       },
       "UserResponse": {
         "required": [
@@ -455,6 +1090,9 @@
     },
     {
       "name": "Guilds"
+    },
+    {
+      "name": "Mousetrap"
     },
     {
       "name": "Status"

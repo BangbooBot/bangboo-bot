@@ -24,7 +24,8 @@ public enum ModAction
 public class ModerationModule(IOptions<Colors> colors) : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("moderate", "Equality before the law is the cornerstone of justice ⚖.", Contexts = [InteractionContextType.Guild])]
-    public async Task Moderate(ModAction action)
+    public async Task Moderate(
+        [SlashCommandParameter(Name = "action", Description = "Moderation action to apply")] ModAction action)
     {
         if (Context.Guild.OwnerId != Context.User.Id)
         {

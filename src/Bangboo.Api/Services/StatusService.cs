@@ -22,7 +22,7 @@ public sealed class StatusService(AppDbContext db, IDiscordApiClient discord, Ti
             .AsNoTracking()
             .FirstOrDefaultAsync(status => status.Id == BotStatus.SingletonId, ct);
 
-        var commands = await GetCommandsAsync(ct);
+        var commands = await GetCommandsAsync(locale: null, ct);
 
         if (heartbeat is null)
         {
@@ -39,14 +39,14 @@ public sealed class StatusService(AppDbContext db, IDiscordApiClient discord, Ti
             heartbeat.UpdatedAt);
     }
 
-    public async Task<IReadOnlyList<CommandResponse>> GetCommandsAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<CommandResponse>> GetCommandsAsync(string? locale, CancellationToken ct)
     {
         var commands = await discord.GetApplicationCommandsAsync(ct);
 
         return commands
             .Where(command => command.Type == SlashCommandType)
             .OrderBy(command => command.Name, StringComparer.Ordinal)
-            .Select(command => new CommandResponse(command.Name, command.Description))
+            .Select(command => CommandMapper.ToResponse(command, locale))
             .ToList();
     }
 }

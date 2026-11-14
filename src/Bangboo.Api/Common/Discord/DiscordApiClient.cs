@@ -49,8 +49,20 @@ public sealed class DiscordApiClient(
 
     public async Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync(CancellationToken ct)
     {
-        using var request = BotRequest(HttpMethod.Get, $"applications/{options.Value.ClientId}/commands");
+        using var request = BotRequest(HttpMethod.Get, $"applications/{options.Value.ClientId}/commands?with_localizations=true");
         return await SendAsync<List<DiscordApplicationCommand>>(request, isUserRequest: false, ct);
+    }
+
+    public async Task<DiscordGuild> GetGuildAsync(string guildId, CancellationToken ct)
+    {
+        using var request = BotRequest(HttpMethod.Get, $"guilds/{Uri.EscapeDataString(guildId)}?with_counts=true");
+        return await SendAsync<DiscordGuild>(request, isUserRequest: false, ct, guildScoped: true);
+    }
+
+    public async Task<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(string guildId, CancellationToken ct)
+    {
+        using var request = BotRequest(HttpMethod.Get, $"guilds/{Uri.EscapeDataString(guildId)}/channels");
+        return await SendAsync<List<DiscordChannel>>(request, isUserRequest: false, ct, guildScoped: true);
     }
 
     private HttpRequestMessage BotRequest(HttpMethod method, string url)
@@ -60,7 +72,11 @@ public sealed class DiscordApiClient(
         return request;
     }
 
-    private async Task<T> SendAsync<T>(HttpRequestMessage request, bool isUserRequest, CancellationToken ct)
+    /// <param name="guildScoped">
+    /// Rota de uma guild específica com o token do bot: 403/404 significam que o bot não está
+    /// (ou não tem acesso) na guild, e viram 404 para o dashboard oferecer o convite.
+    /// </param>
+    private async Task<T> SendAsync<T>(HttpRequestMessage request, bool isUserRequest, CancellationToken ct, bool guildScoped = false)
     {
         HttpResponseMessage response;
         try
@@ -79,6 +95,11 @@ public sealed class DiscordApiClient(
             if (isUserRequest && response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 throw new UnauthorizedException("Discord session expired, please log in again");
+            }
+
+            if (guildScoped && response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Forbidden)
+            {
+                throw new NotFoundException("Bangboo is not in this server");
             }
 
             if (!response.IsSuccessStatusCode)

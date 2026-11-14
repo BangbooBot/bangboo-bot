@@ -55,6 +55,8 @@ public sealed class BangbooApiFactory : WebApplicationFactory<Program>, IAsyncLi
         await using var scope = Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.BotStatus.ExecuteDeleteAsync();
+        await db.Mousetraps.ExecuteDeleteAsync();
+        await db.Guilds.ExecuteDeleteAsync();
         await db.Users.ExecuteDeleteAsync();
     }
 

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bangboo.Api.Common;
 using Bangboo.Api.Common.Auth;
@@ -19,11 +20,20 @@ builder.Services.AddApiErrorHandling();
 builder.Services.AddBangbooAuth(builder.Environment);
 builder.Services.AddDiscordApi();
 builder.Services.AddApiDocs();
+// Mesmas regras de JSON no MVC e no gerador do OpenAPI:
+// - números estritos (o front recebe `number`, não `number | string`);
+// - enums como texto camelCase (`"ban"`, `"byTenure"`), não como número.
 builder.Services.AddControllers(options => options.Filters.Add(new ProducesAttribute("application/json")))
-    .AddJsonOptions(options => options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict);
-// Números estritos também para o gerador do OpenAPI: o front recebe `number`, não `number | string`.
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+    });
 builder.Services.ConfigureHttpJsonOptions(options =>
-    options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict);
+{
+    options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+});
 
 // Services da aplicação
 builder.Services.AddApplicationServices();

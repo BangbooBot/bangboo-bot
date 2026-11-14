@@ -2,6 +2,8 @@
 using Bot.Utils.Constants;
 using Bot.Services;
 using Bot.Services.BotStatus;
+using Bot.Services.Localization;
+using Bot.Services.Mousetrap;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -58,6 +60,8 @@ builder.Services
                 args: null,
                 culture: null)!;;
         options.ResultHandler = cmdHandler;
+        // Traduções (pt-BR...) das descrições e escolhas dos comandos: Localizations/*.json
+        options.LocalizationsProvider = CommandLocalizations.CreateProvider();
     })
     .AddGatewayHandlers(typeof(Program).Assembly);
 
@@ -65,6 +69,7 @@ builder.Services
     .AddComponentInteractions<ModalInteraction, ModalInteractionContext>();
 
 builder.Services
+    .AddSingleton<IMousetrapSettingsProvider, MousetrapSettingsProvider>()
     .AddSingleton<IAutomodService, AutomodService>()
     .AddSingleton<IGlobalService, GlobalService>();
 

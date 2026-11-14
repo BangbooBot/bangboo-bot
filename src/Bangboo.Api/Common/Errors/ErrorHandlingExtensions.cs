@@ -9,7 +9,9 @@ public static class ErrorHandlingExtensions
     {
         services.AddExceptionHandler<GlobalExceptionHandler>();
 
-        services.Configure<ApiBehaviorOptions>(options =>
+        // PostConfigure: AddControllers() registra a factory padrão (ProblemDetails) depois desta
+        // extensão; com Configure ela sobrescreveria a nossa.
+        services.PostConfigure<ApiBehaviorOptions>(options =>
         {
             // Sem ProblemDetails automático: o contrato é sempre { status, message }.
             options.SuppressMapClientErrors = true;
