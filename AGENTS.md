@@ -164,8 +164,8 @@ Pacotes: `AspNet.Security.OAuth.Discord` (aspnet-contrib) + Cookie authenticatio
 - `<GenerateDocumentationFile>true</GenerateDocumentationFile>`: **todo endpoint tem `/// <summary>`** (e `<remarks>` quando necessário) e `ProducesResponseType` de sucesso e de cada `ApiError` possível.
 - Transformers em `Common/OpenApi/`: `CookieAuthDocumentTransformer` (título, descrição e security scheme do cookie `bangboo.auth`) e `AnonymousOperationTransformer` (tira o cadeado das rotas `[AllowAnonymous]`).
 - Respostas só em `application/json` e números estritos (`JsonNumberHandling.Strict` no MVC **e** no `ConfigureHttpJsonOptions`), para o front receber `number` e não `number | string`.
-- Geração no build (`Microsoft.Extensions.ApiDescription.Server` + `OpenApiGenerateDocumentsOnBuild` no `Bangboo.Api.csproj`) gera `openapi/Bangboo.Api.json`, que **é commitado**. Nesse modo o app sobe sem configuração: use `BuildContext.IsGeneratingOpenApi` para pular validações de start, e não acesse banco/Discord durante o startup. No dashboard, `pnpm api:sync` copia esse arquivo e gera os tipos do `openapi-fetch`.
-- Mudou contrato (rota, DTO, status)? Faça o build, commite o `openapi/` e avise que o dashboard precisa de `pnpm api:sync`.
+- Geração no build (`Microsoft.Extensions.ApiDescription.Server` + `OpenApiGenerateDocumentsOnBuild` no `Bangboo.Api.csproj`) gera `openapi/Bangboo.Api.json`, que **é commitado**. Nesse modo o app sobe sem configuração: use `BuildContext.IsGeneratingOpenApi` para pular validações de start, e não acesse banco/Discord durante o startup. No dashboard, `bun run api:sync` copia esse arquivo e gera os tipos do `openapi-fetch`.
+- Mudou contrato (rota, DTO, status)? Faça o build, commite o `openapi/` e avise que o dashboard precisa de `bun run api:sync`.
 
 ## 8. Testes
 

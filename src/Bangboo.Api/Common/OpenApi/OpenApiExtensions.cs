@@ -12,6 +12,9 @@ public static class OpenApiExtensions
         {
             options.AddDocumentTransformer<CookieAuthDocumentTransformer>();
             options.AddOperationTransformer<AnonymousOperationTransformer>();
+            // Mesmo JSON em Windows e Linux (o CI compara o arquivo gerado com o commitado).
+            options.AddOperationTransformer<LineEndingsTransformer>();
+            options.AddSchemaTransformer<LineEndingsTransformer>();
         });
         return services;
     }

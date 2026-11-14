@@ -12,7 +12,7 @@
           "Auth"
         ],
         "summary": "Inicia o login com Discord.",
-        "description": "Redireciona para o OAuth do Discord. Após o login, o cookie `bangboo.auth` é criado e o\r\nnavegador volta para returnUrl (apenas caminhos relativos; padrão `/dashboard`).\r\nAbra esta URL como navegação de página, não via fetch.",
+        "description": "Redireciona para o OAuth do Discord. Após o login, o cookie `bangboo.auth` é criado e o\nnavegador volta para returnUrl (apenas caminhos relativos; padrão `/dashboard`).\nAbra esta URL como navegação de página, não via fetch.",
         "parameters": [
           {
             "name": "returnUrl",
@@ -83,7 +83,7 @@
           "Guilds"
         ],
         "summary": "Guilds gerenciáveis.",
-        "description": "Guilds em que o usuário é dono, Administrator ou tem Manage Server.\r\n`isBotMember` indica se o bot já está na guild.",
+        "description": "Guilds em que o usuário é dono, Administrator ou tem Manage Server.\n`isBotMember` indica se o bot já está na guild.",
         "responses": {
           "200": {
             "description": "OK",

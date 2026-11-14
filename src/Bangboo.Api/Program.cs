@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Bangboo.Api.Common;
 using Bangboo.Api.Common.Auth;
 using Bangboo.Api.Common.Discord;
 using Bangboo.Api.Common.Errors;
@@ -36,7 +37,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+// Durante a geração do OpenAPI no build não há banco: nunca migrar nesse modo.
+if (!BuildContext.IsGeneratingOpenApi && app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
 {
     await using var scope = app.Services.CreateAsyncScope();
     await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
