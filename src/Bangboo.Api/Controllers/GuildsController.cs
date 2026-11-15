@@ -69,4 +69,18 @@ public sealed class GuildsController(IGuildService guilds, IGuildOverviewService
     [ProducesResponseType<ApiError>(StatusCodes.Status502BadGateway)]
     public async Task<ActionResult<IReadOnlyList<GuildChannelResponse>>> Channels(string guildId, CancellationToken ct) =>
         Ok(await overview.GetTextChannelsAsync(guildId, ct));
+
+    /// <summary>Cargos do servidor.</summary>
+    /// <remarks>Cargos que podem ser dados a membros (sem @everyone e sem cargos de bot), do mais alto para o mais baixo. 404 se o bot não estiver no servidor.</remarks>
+    /// <param name="guildId">ID da guild no Discord.</param>
+    /// <param name="ct">Token de cancelamento.</param>
+    [HttpGet("{guildId}/roles")]
+    [Authorize(Policy = AuthPolicies.ManageGuild)]
+    [ProducesResponseType<IReadOnlyList<GuildRoleResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiError>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ApiError>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ApiError>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ApiError>(StatusCodes.Status502BadGateway)]
+    public async Task<ActionResult<IReadOnlyList<GuildRoleResponse>>> Roles(string guildId, CancellationToken ct) =>
+        Ok(await overview.GetRolesAsync(guildId, ct));
 }

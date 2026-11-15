@@ -340,6 +340,254 @@
         }
       }
     },
+    "/api/guilds/{guildId}/roles": {
+      "get": {
+        "tags": [
+          "Guilds"
+        ],
+        "summary": "Cargos do servidor.",
+        "description": "Cargos que podem ser dados a membros (sem @everyone e sem cargos de bot), do mais alto para o mais baixo. 404 se o bot não estiver no servidor.",
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "description": "ID da guild no Discord.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuildRoleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/guilds/{guildId}/moderation": {
+      "get": {
+        "tags": [
+          "Moderation"
+        ],
+        "summary": "Cargos que podem usar o comando /moderate.",
+        "description": "O dono e quem tem Administrador sempre podem, mesmo sem cargo listado. 404 se o bot não estiver no servidor.",
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "description": "ID da guild no Discord.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModerationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Moderation"
+        ],
+        "summary": "Define os cargos que podem usar o comando /moderate.",
+        "description": "Substitui a lista atual. Só cargos atribuíveis (sem @everyone e sem cargos de bot), até 25.\nO bot aplica a mudança em até 30 s.",
+        "parameters": [
+          {
+            "name": "guildId",
+            "in": "path",
+            "description": "ID da guild no Discord.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Token de cancelamento.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateModerationRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateModerationRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateModerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModerationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/guilds/{guildId}/mousetrap": {
       "get": {
         "tags": [
@@ -883,6 +1131,46 @@
         },
         "description": "Guild que o usuário pode gerenciar."
       },
+      "GuildRoleResponse": {
+        "required": [
+          "id",
+          "name",
+          "color"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID do cargo."
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome."
+          },
+          "color": {
+            "type": "integer",
+            "description": "Cor em RGB inteiro (0 = sem cor).",
+            "format": "int32"
+          }
+        },
+        "description": "Cargo atribuível da guild (para seletores do dashboard)."
+      },
+      "ModerationResponse": {
+        "required": [
+          "roleIds"
+        ],
+        "type": "object",
+        "properties": {
+          "roleIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Cargos liberados. O dono e administradores sempre podem."
+          }
+        },
+        "description": "Quem pode usar o comando `/moderate`."
+      },
       "MousetrapAction": {
         "enum": [
           "ban",
@@ -995,6 +1283,22 @@
         },
         "description": "Estado atual do bot."
       },
+      "UpdateModerationRequest": {
+        "required": [
+          "roleIds"
+        ],
+        "type": "object",
+        "properties": {
+          "roleIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "IDs de cargos atribuíveis da guild (até 25)."
+          }
+        },
+        "description": "Novos cargos que podem usar o comando `/moderate` (substitui a lista atual)."
+      },
       "UpdateMousetrapRequest": {
         "type": "object",
         "properties": {
@@ -1090,6 +1394,9 @@
     },
     {
       "name": "Guilds"
+    },
+    {
+      "name": "Moderation"
     },
     {
       "name": "Mousetrap"

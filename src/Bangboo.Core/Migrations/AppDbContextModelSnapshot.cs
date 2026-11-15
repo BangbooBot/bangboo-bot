@@ -186,6 +186,21 @@ namespace Bangboo.Core.Migrations
                     b.ToTable("members", (string)null);
                 });
 
+            modelBuilder.Entity("Bangboo.Core.Entities.ModeratorRole", b =>
+                {
+                    b.Property<decimal>("GuildId")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("fk_guild_id");
+
+                    b.Property<decimal>("RoleId")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("role_id");
+
+                    b.HasKey("GuildId", "RoleId");
+
+                    b.ToTable("moderator_roles", (string)null);
+                });
+
             modelBuilder.Entity("Bangboo.Core.Entities.Mousetrap", b =>
                 {
                     b.Property<long>("Id")
@@ -332,6 +347,17 @@ namespace Bangboo.Core.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Bangboo.Core.Entities.ModeratorRole", b =>
+                {
+                    b.HasOne("Bangboo.Core.Entities.Guild", "Guild")
+                        .WithMany("ModeratorRoles")
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Guild");
+                });
+
             modelBuilder.Entity("Bangboo.Core.Entities.Mousetrap", b =>
                 {
                     b.HasOne("Bangboo.Core.Entities.Guild", "Guild")
@@ -348,6 +374,8 @@ namespace Bangboo.Core.Migrations
                     b.Navigation("MemberEvents");
 
                     b.Navigation("Members");
+
+                    b.Navigation("ModeratorRoles");
 
                     b.Navigation("Mousetrap");
                 });

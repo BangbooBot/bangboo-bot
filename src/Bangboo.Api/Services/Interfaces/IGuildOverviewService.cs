@@ -9,4 +9,7 @@ public interface IGuildOverviewService
 
     /// <summary>Canais de texto/anúncios, na ordem do Discord.</summary>
     Task<IReadOnlyList<GuildChannelResponse>> GetTextChannelsAsync(string guildId, CancellationToken ct);
+
+    /// <summary>Cargos atribuíveis (sem @everyone e cargos de bot), do mais alto para o mais baixo.</summary>
+    Task<IReadOnlyList<GuildRoleResponse>> GetRolesAsync(string guildId, CancellationToken ct);
 }

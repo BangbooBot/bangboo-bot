@@ -26,7 +26,7 @@ public sealed class MousetrapService(AppDbContext db, IDiscordApiClient discord)
         var channels = await discord.GetGuildChannelsAsync(guildId, ct);
         var channelId = Validate(request, channels);
 
-        await UpsertGuildAsync(id, guild, ct);
+        await db.UpsertGuildAsync(id, guild, ct);
 
         var mousetrap = await db.Mousetraps.FirstOrDefaultAsync(m => m.GuildId == id, ct);
         if (mousetrap is null)
@@ -81,21 +81,6 @@ public sealed class MousetrapService(AppDbContext db, IDiscordApiClient discord)
         }
 
         return channelId;
-    }
-
-    /// <summary>A guild precisa existir na tabela <c>guilds</c> (FK do mousetrap).</summary>
-    private async Task UpsertGuildAsync(ulong id, DiscordGuild discordGuild, CancellationToken ct)
-    {
-        var guild = await db.Guilds.FirstOrDefaultAsync(g => g.Id == id, ct);
-        if (guild is null)
-        {
-            guild = new Guild { Id = id, Name = discordGuild.Name };
-            db.Guilds.Add(guild);
-        }
-
-        guild.Name = discordGuild.Name;
-        guild.Icon = discordGuild.Icon;
-        guild.Banner = discordGuild.Banner;
     }
 
     private static MousetrapResponse ToResponse(Mousetrap mousetrap, IReadOnlyList<DiscordChannel> channels)

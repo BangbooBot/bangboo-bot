@@ -59,9 +59,13 @@ public sealed record DiscordGuild(
     [property: JsonPropertyName("preferred_locale")] string? PreferredLocale,
     [property: JsonPropertyName("roles")] IReadOnlyList<DiscordRole>? Roles = null);
 
+/// <summary>Cargo da guild. <c>Managed</c> = cargo de bot/integração (não pode ser dado a membros).</summary>
 public sealed record DiscordRole(
     [property: JsonPropertyName("id")] string Id,
-    [property: JsonPropertyName("name")] string Name);
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("color")] int Color = 0,
+    [property: JsonPropertyName("position")] int Position = 0,
+    [property: JsonPropertyName("managed")] bool Managed = false);
 
 /// <summary>
 /// Canal de <c>GET /guilds/{id}/channels</c>.

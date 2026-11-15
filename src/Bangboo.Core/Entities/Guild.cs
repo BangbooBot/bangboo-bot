@@ -15,4 +15,5 @@ public sealed class Guild
     public ICollection<Member> Members { get; set; } = [];
     public GuildMemberEvents? MemberEvents { get; set; }
     public Mousetrap? Mousetrap { get; set; }
+    public ICollection<ModeratorRole> ModeratorRoles { get; set; } = [];
 }

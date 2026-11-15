@@ -12,6 +12,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Member> Members => Set<Member>();
     public DbSet<GuildMemberEvents> GuildMemberEvents => Set<GuildMemberEvents>();
     public DbSet<Mousetrap> Mousetraps => Set<Mousetrap>();
+    public DbSet<ModeratorRole> ModeratorRoles => Set<ModeratorRole>();
     public DbSet<BotStatus> BotStatus => Set<BotStatus>();
 
     /// <summary>Chaves do ASP.NET Data Protection (cookies de auth sobrevivem a restart).</summary>

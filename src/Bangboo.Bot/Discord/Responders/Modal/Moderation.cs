@@ -1,5 +1,6 @@
 using Bangboo.Utils;
 using Bot.Handler;
+using Bot.Services.Moderation;
 using Bot.Utils.Constants;
 using Microsoft.Extensions.Options;
 using NetCord;
@@ -8,7 +9,7 @@ using NetCord.Services.ComponentInteractions;
 
 namespace Bot.Discord.Responders.Modal;
 
-public class ModerationResponderModule(IOptions<Colors> colors) : ComponentInteractionModule<ModalInteractionContext>
+public class ModerationResponderModule(IOptions<Colors> colors, IModeratorRolesProvider moderatorRoles) : ComponentInteractionModule<ModalInteractionContext>
 {
     // Limite do bulk delete do Discord (2-100 mensagens por chamada)
     private const int MaxDeleteLimit = 100;
@@ -21,6 +22,9 @@ public class ModerationResponderModule(IOptions<Colors> colors) : ComponentInter
     [ComponentInteraction("modal/moderate/delete-message")]
     public async Task DeleteMessage()
     {
+        // O cargo pode ter sido removido entre abrir o modal e enviar.
+        await moderatorRoles.EnsureCanModerateAsync(Context.Guild, Context.User);
+
         var selectedUsers = GetUserMenu("delete-message-users")?.SelectedValues;
         var limitText = GetTextInput("delete-message-limit");
 
@@ -84,6 +88,9 @@ public class ModerationResponderModule(IOptions<Colors> colors) : ComponentInter
     [ComponentInteraction("modal/moderate/timeout")]
     public async Task Timeout()
     {
+        // O cargo pode ter sido removido entre abrir o modal e enviar.
+        await moderatorRoles.EnsureCanModerateAsync(Context.Guild, Context.User);
+
         var selectedUsers = GetUserMenu("timeout-users")?.SelectedValues;
         var timeout = GetStringMenu("timeout-duration")?.SelectedValues.FirstOrDefault();
         var reason = GetTextInput("timeout-reason");
@@ -118,6 +125,9 @@ public class ModerationResponderModule(IOptions<Colors> colors) : ComponentInter
     [ComponentInteraction("modal/moderate/kick")]
     public async Task Kick()
     {
+        // O cargo pode ter sido removido entre abrir o modal e enviar.
+        await moderatorRoles.EnsureCanModerateAsync(Context.Guild, Context.User);
+
         var selectedUsers = GetUserMenu("kick-users")?.SelectedValues;
         var reason = GetTextInput("kick-reason");
 
@@ -140,6 +150,9 @@ public class ModerationResponderModule(IOptions<Colors> colors) : ComponentInter
     [ComponentInteraction("modal/moderate/ban")]
     public async Task Ban()
     {
+        // O cargo pode ter sido removido entre abrir o modal e enviar.
+        await moderatorRoles.EnsureCanModerateAsync(Context.Guild, Context.User);
+
         var selectedUsers = GetUserMenu("ban-users")?.SelectedValues;
         var reason = GetTextInput("ban-reason");
 
@@ -163,6 +176,9 @@ public class ModerationResponderModule(IOptions<Colors> colors) : ComponentInter
     [ComponentInteraction("modal/moderate/unban")]
     public async Task Unban()
     {
+        // O cargo pode ter sido removido entre abrir o modal e enviar.
+        await moderatorRoles.EnsureCanModerateAsync(Context.Guild, Context.User);
+
         var selectedUsers = GetUserMenu("unban-users")?.SelectedValues;
 
         if (selectedUsers is null || !selectedUsers.Any())

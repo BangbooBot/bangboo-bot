@@ -3,6 +3,7 @@ using Bot.Utils.Constants;
 using Bot.Services;
 using Bot.Services.BotStatus;
 using Bot.Services.Localization;
+using Bot.Services.Moderation;
 using Bot.Services.Mousetrap;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,6 +71,7 @@ builder.Services
 
 builder.Services
     .AddSingleton<IMousetrapSettingsProvider, MousetrapSettingsProvider>()
+    .AddSingleton<IModeratorRolesProvider, ModeratorRolesProvider>()
     .AddSingleton<IAutomodService, AutomodService>()
     .AddSingleton<IGlobalService, GlobalService>();
 

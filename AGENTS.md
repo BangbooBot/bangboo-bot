@@ -11,7 +11,7 @@ Directory.Packages.props     versões de TODOS os pacotes (Central Package Manag
 global.json                  dotnet test usa Microsoft.Testing.Platform
 ├─ src/
 │  ├─ Bangboo.Core/          classlib — ÚNICO dono do schema
-│  │  ├─ Entities/           User, Guild, Member, GuildMemberEvents, Mousetrap, BotStatus
+│  │  ├─ Entities/           User, Guild, Member, GuildMemberEvents, Mousetrap, ModeratorRole, BotStatus
 │  │  ├─ Data/AppDbContext.cs (+ AppDbContextDesignTimeFactory para o dotnet ef)
 │  │  ├─ Data/Configurations/ <Entidade>Configuration.cs (IEntityTypeConfiguration<T>)
 │  │  ├─ Migrations/
@@ -151,6 +151,7 @@ Pacotes: `AspNet.Security.OAuth.Discord` (aspnet-contrib) + Cookie authenticatio
 - Handlers (comandos, eventos, interações) são finos e delegam para services em `Services/`, com a mesma regra de interface + DI explícita.
 - A configuração por guild vem do banco via `Bangboo.Core`, não de JSON. Ela é salva pelo dashboard (API) e lida pelo bot com cache curto (ex.: `Services/Mousetrap/MousetrapSettingsProvider`, 30 s), sem consultar o banco a cada mensagem.
 - **Mousetrap**: `AutomodService` + regra pura em `MousetrapPolicy` (testada). `kick` = ban + unban na hora (apaga 7 dias de mensagens); `byTenure` expulsa quem está há `MinTenureDays` ou mais e bane os mais novos; a DM vai **antes** da punição; o dono nunca é punido.
+- **`/moderate`**: pode usar quem é dono, tem Administrador ou tem um dos cargos salvos no dashboard (tabela `moderator_roles`, página Moderação). Regra pura em `Services/Moderation/ModerationPolicy`; `IModeratorRolesProvider.EnsureCanModerateAsync` checa no comando **e** em cada modal (o cargo pode ser removido entre abrir e enviar). Cache de 30 s.
 - `Services/BotStatus/BotStatusHeartbeat` (BackgroundService) grava latência, início e guild count via `IBotStatusWriter` a cada 30 s. A API considera o bot offline sem heartbeat por 90 s.
 - Serviços singleton/background usam `IDbContextFactory<AppDbContext>`, nunca um `AppDbContext` injetado.
 - O bot **não expõe HTTP**. Se precisar receber sinal do site (ex.: "recarregar config"), use `LISTEN/NOTIFY` do Postgres.

@@ -35,4 +35,7 @@ public sealed class GuildOverviewService(IDiscordApiClient discord, IMousetrapSe
 
     public async Task<IReadOnlyList<GuildChannelResponse>> GetTextChannelsAsync(string guildId, CancellationToken ct) =>
         GuildChannelMapper.ToTextChannels(await discord.GetGuildChannelsAsync(guildId, ct));
+
+    public async Task<IReadOnlyList<GuildRoleResponse>> GetRolesAsync(string guildId, CancellationToken ct) =>
+        GuildRoleMapper.ToAssignableRoles(await discord.GetGuildAsync(guildId, ct));
 }

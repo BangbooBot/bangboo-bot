@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGuildService, GuildService>();
         services.AddScoped<IStatusService, StatusService>();
         services.AddScoped<IMousetrapService, MousetrapService>();
+        services.AddScoped<IModerationService, ModerationService>();
         services.AddScoped<IGuildOverviewService, GuildOverviewService>();
 
         return services;

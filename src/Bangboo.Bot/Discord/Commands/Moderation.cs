@@ -6,6 +6,7 @@ using Bot.Utils.Menus.Modals;
 using Microsoft.Extensions.Options;
 using EmbedBuilder = Bangboo.Utils.EmbedBuilder;
 using Bot.Handler;
+using Bot.Services.Moderation;
 
 public enum ModAction
 {
@@ -21,16 +22,14 @@ public enum ModAction
     Unban
 }
 
-public class ModerationModule(IOptions<Colors> colors) : ApplicationCommandModule<ApplicationCommandContext>
+public class ModerationModule(IOptions<Colors> colors, IModeratorRolesProvider moderatorRoles) : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("moderate", "Equality before the law is the cornerstone of justice ⚖.", Contexts = [InteractionContextType.Guild])]
     public async Task Moderate(
         [SlashCommandParameter(Name = "action", Description = "Moderation action to apply")] ModAction action)
     {
-        if (Context.Guild.OwnerId != Context.User.Id)
-        {
-            throw new BotException("You are not a mod or the owner of the guild.");
-        }
+        // Dono, Administrador ou um dos cargos configurados no dashboard (página Moderação).
+        await moderatorRoles.EnsureCanModerateAsync(Context.Guild, Context.User);
 
         switch (action)
         {
